@@ -208,8 +208,12 @@ export default async (event) => {
     }
 
     const body = typeof event.body === 'string' ? event.body : Buffer.from(event.body || '', 'base64').toString();
-    const parsed = parseForm(body);
-
+    let parsed;
+    if (typeof event.headers?.['content-type'] === 'string' && event.headers['content-type'].includes('application/json')) {
+      try { parsed = JSON.parse(body); } catch { parsed = parseForm(body); }
+    } else {
+      parsed = parseForm(body);
+    }
     const {
       name, email, phone, country,
       project, unit_type, budget_range, timeline, offer_type, message
