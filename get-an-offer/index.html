@@ -190,7 +190,7 @@
     */
     window.API_BASE = 'https://agentic-quote-api-wj5v.onrender.com';
     document.getElementById('year').textContent = new Date().getFullYear();
-    document.addEventListener('DOMContentLoaded', function(){
+    (function init(){
       const ts = document.getElementById('timestamp');
       if(ts) ts.value = new Date().toISOString();
 
@@ -282,7 +282,7 @@
           status.textContent = 'Something went wrong. Please email salesmutti@gmail.com.';
         }
       });
-    });
+    })();
   </script>
 </body>
 </html>
