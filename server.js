@@ -7,13 +7,13 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
   const pathname = url.pathname;
 
-  if (pathname === '/api/generate-quote' && req.method === 'POST') {
+  if (pathname === '/api/generate-quote') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {
       try {
         const event = {
-          httpMethod: 'POST',
+          httpMethod: req.method,
           headers: Object.fromEntries(Object.entries(req.headers).map(([k, v]) => [k.toLowerCase(), v])),
           body
         };
