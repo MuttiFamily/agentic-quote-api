@@ -83,7 +83,7 @@
     <div class="container">
       <div class="label">Request quotation</div>
       <div class="form-wrap">
-        <form id="leadForm" name="leadForm" method="POST" action="/quote-generate">
+        <form id="leadForm" name="leadForm" method="POST" action="/api/generate-quote">
           <input type="hidden" name="bot-field">
           <input type="hidden" name="landing_page" value="Get an Offer">
           <input type="hidden" name="timestamp" id="timestamp">
@@ -252,7 +252,7 @@
         try {
           const payload = new URLSearchParams(new FormData(form));
           const API_BASE = window.API_BASE || '';
-          const url = API_BASE + '/quote-generate';
+          const url = API_BASE + '/api/generate-quote';
           const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
