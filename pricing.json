@@ -1,0 +1,145 @@
+{
+  "mutti-family-villas": {
+    "label": "Mutti Family Villas",
+    "currency": "THB",
+    "paymentPlan": "Progressive to handover: 2% reservation, 28% contract signing, 15% foundation, 15% concrete structure, 10% wall/roof, 10% finishes/furniture, 10% handover, 10% after transfer. 5% discount if paying 90% at reservation. Freehold 6.6% / Leasehold 1.1% taxes split 50/50.",
+    "feesNote": "Maintenance + sinking fund vary by villa type.",
+    "units": {
+      "3-bed-villa": {
+        "label": "Pearl (3-bed)",
+        "priceFrom": 19900000,
+        "priceTo": 19900000,
+        "builtUpSqm": "226–239",
+        "plotSqm": "339–341"
+      },
+      "4-bed-villa": {
+        "label": "Coral (4-bed)",
+        "priceFrom": 23483000,
+        "priceTo": 26601500,
+        "builtUpSqm": "257–333",
+        "plotSqm": "444–452"
+      },
+      "5-bed-villa": {
+        "label": "Breeze (5-bed)",
+        "priceFrom": 34340000,
+        "priceTo": 34917500,
+        "builtUpSqm": "402–478",
+        "plotSqm": "632–668"
+      },
+      "6-bed-villa": {
+        "label": "Azure (6-bed)",
+        "priceFrom": 43425000,
+        "priceTo": 49777500,
+        "builtUpSqm": "506–532",
+        "plotSqm": "614–750"
+      }
+    }
+  },
+  "silhouette-by-the-zero": {
+    "label": "Silhouette by The Zero",
+    "currency": "THB",
+    "paymentPlan": "Transfer fee payable 50/50 buyer/seller. Common fee 80 THB/sqm/month annually. Sinking fund 800 THB/sqm one-time. Electric/water installation max 20,000 THB. Freehold fee 300,000–600,000 THB.",
+    "feesNote": "",
+    "units": {
+      "studio": {
+        "label": "Studio",
+        "priceFrom": 4940000,
+        "priceTo": 5550000,
+        "builtUpSqm": "29.5–36.3",
+        "furniturePackage": 350000
+      },
+      "1-bed": {
+        "label": "1-Bedroom",
+        "priceFrom": 5260000,
+        "priceTo": 6400000,
+        "builtUpSqm": "37.5–46",
+        "furniturePackage": 400000
+      },
+      "1-bed-plus": {
+        "label": "1-Bedroom Plus",
+        "priceFrom": 5758425,
+        "priceTo": 7174286,
+        "builtUpSqm": "44.4–52.4",
+        "furniturePackage": 400000
+      },
+      "2-bed": {
+        "label": "2-Bedroom",
+        "priceFrom": 7322000,
+        "priceTo": 10147000,
+        "builtUpSqm": "53.0–66.7",
+        "furniturePackage": 500000
+      },
+      "suite": {
+        "label": "Penthouse / Sky Residences",
+        "priceFrom": 11040000,
+        "priceTo": 15225000,
+        "builtUpSqm": "81.2–108.3",
+        "furniturePackage": 700000
+      }
+    }
+  },
+  "the-zero-bang-tao": {
+    "label": "The Zero Bang Tao",
+    "currency": "THB",
+    "paymentPlan": "Transfer fee payable 50/50 buyer/seller. Common fee 80 THB/sqm/month annually. Sinking fund 800 THB/sqm one-time. Electric/water installation max 20,000 THB. Freehold fee 450,000–700,000 THB.",
+    "feesNote": "",
+    "units": {
+      "studio": {
+        "label": "Studio / Type AA",
+        "priceFrom": 7500000,
+        "priceTo": 8500000,
+        "builtUpSqm": "53.04"
+      },
+      "1-bed": {
+        "label": "1-Bedroom Types B/F/H",
+        "priceFrom": 5100000,
+        "priceTo": 6300000,
+        "builtUpSqm": "35.69–47.45"
+      },
+      "1-2-bed": {
+        "label": "1–2 Bedroom Type G",
+        "priceFrom": 6000000,
+        "priceTo": 7450000,
+        "builtUpSqm": "51.04"
+      },
+      "2-bed": {
+        "label": "2-Bedroom Types E/I",
+        "priceFrom": 7600000,
+        "priceTo": 8500000,
+        "builtUpSqm": "58.60–70.54"
+      },
+      "3-bed": {
+        "label": "3-Bedroom Type D",
+        "priceFrom": 12000000,
+        "priceTo": 13500000,
+        "builtUpSqm": "95.45"
+      },
+      "other": {
+        "label": "Other / Bespoke",
+        "priceFrom": null,
+        "priceTo": null,
+        "builtUpSqm": "—"
+      }
+    }
+  },
+  "layan-lucky-villas": {
+    "label": "Layan Lucky Villas",
+    "currency": "THB",
+    "paymentPlan": "Prices valid until 31 August 2026. Transfer fee payable 50/50 buyer/seller. Payments in THB only. Exchange reference 32.5 THB/USD (05 May 2026). Developer may change details without notice.",
+    "feesNote": "",
+    "units": {
+      "4-bed-villa": {
+        "label": "4-bed villa",
+        "priceFrom": 47600000,
+        "priceTo": 67800000,
+        "notes": "Most villas sold. Available: L5 (THB 67.8M, under construction), L15 (THB 47.6M, under construction)."
+      },
+      "3-bed-villa": {
+        "label": "3-bed villa",
+        "priceFrom": null,
+        "priceTo": null,
+        "notes": "All sold out."
+      }
+    }
+  }
+}

@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOGO_PATH = path.join(__dirname, 'assets/images/agentic-logo.png');
+const PRICING_PATH = path.join(__dirname, 'pricing.json');
+const pricing = JSON.parse(fs.readFileSync(PRICING_PATH, 'utf8'));
 
 function parseForm(body) {
   const out = {};
@@ -71,7 +73,7 @@ function emailTemplate(ref, data) {
   `;
 }
 
-async function generateQuotePdf(ref, data) {
+async function generateQuotePdf(ref, projectKey, data) {
   const doc = await PDFDocument.create();
   const page = doc.addPage(PageSizes.A4);
   const { width, height } = page.getSize();
@@ -156,16 +158,37 @@ async function generateQuotePdf(ref, data) {
   y -= 18;
 
   y = drawText('Project details', marginX, y, bold, black, 12);
+  const pricingEntry = pricing[projectKey];
+  const unitKey = unit_type;
+  const unitPricing = pricingEntry?.units?.[unitKey];
   const rows = [
     { label: 'Project', value: data.project },
-    { label: 'Unit type', value: unitLabel(data.unit_type) },
+    { label: 'Unit type', value: unitLabel(data.unit_type) }
+  ];
+  if (unitPricing) {
+    if (unitPricing.builtUpSqm) {
+      rows.push({ label: 'Built-up area', value: unitPricing.builtUpSqm + ' sqm' });
+    }
+    if (unitPricing.plotSqm) {
+      rows.push({ label: 'Plot size', value: unitPricing.plotSqm + ' sqm' });
+    }
+    if (unitPricing.priceFrom || unitPricing.priceTo) {
+      const from = unitPricing.priceFrom ? 'THB ' + (unitPricing.priceFrom / 1000000).toFixed(1) + 'M' : '—';
+      const to = unitPricing.priceTo ? 'THB ' + (unitPricing.priceTo / 1000000).toFixed(1) + 'M' : (from === '—' ? '—' : 'on request');
+      rows.push({ label: 'Price', value: from === to ? from : `${from} – ${to}` });
+    }
+    if (unitPricing.notes) {
+      rows.push({ label: 'Availability', value: unitPricing.notes });
+    }
+  }
+  rows.push(
     { label: 'Budget range', value: budgetLabel(data.budget_range) },
     { label: 'Timeline', value: timelineLabel(data.timeline) },
     { label: 'Offer type', value: offerTypeLabel(data.offer_type) }
-  ];
+  );
   for (const l of rows) {
     y = drawText(l.label + ':', marginX, y, bold, muted, 10);
-    y = drawText(l.value, marginX + 110, y - 10, font, black, 10);
+    y = drawText(l.value, marginX + 110, y - 10, font, black, 10, true);
   }
 
   if (data.message) {
@@ -174,6 +197,14 @@ async function generateQuotePdf(ref, data) {
     y -= 18;
     y = drawText('Notes', marginX, y, bold, black, 12);
     y = drawText(data.message, marginX, y, font, muted, 10, true);
+  }
+
+  if (pricingEntry?.paymentPlan) {
+    y -= 14;
+    page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
+    y -= 18;
+    y = drawText('Payment plan', marginX, y, bold, black, 12);
+    y = drawText(pricingEntry.paymentPlan, marginX, y, font, muted, 9, true);
   }
 
   y -= 14;
@@ -250,7 +281,7 @@ export default async (event) => {
 
     const ref = 'AGT-' + new Date().getFullYear() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
 
-    const pdf = await generateQuotePdf(ref, {
+    const pdf = await generateQuotePdf(ref, project, {
       name: name || 'Valued Client',
       email: email || '',
       phone: phone || '',
