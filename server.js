@@ -7,7 +7,7 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
   const pathname = url.pathname;
 
-  if (pathname.startsWith('/api/generate-quote') && req.method === 'POST') {
+  if (pathname === '/api/generate-quote' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {
@@ -19,17 +19,17 @@ const server = http.createServer(async (req, res) => {
         };
         const result = await handler(event);
         res.writeHead(result.statusCode, result.headers);
-        res.end(Buffer.from(result.body, (result.isBase64Encoded ? 'base64' : 'utf8')));
+        res.end(Buffer.from(result.body, result.isBase64Encoded ? 'base64' : 'utf8'));
       } catch (err) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'handler failed' }));
+        res.end(JSON.stringify({ error: 'handler failed', details: String(err) }));
       }
     });
     return;
   }
 
-  res.writeHead(404, { 'Content-Type': 'text/plain' });
-  res.end('Not found');
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Agentic Quote API is running');
 });
 
 server.listen(port, () => {
