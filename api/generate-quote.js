@@ -1,5 +1,11 @@
 import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
 import { Resend } from 'resend';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const LOGO_PATH = path.join(__dirname, 'assets/images/agentic-logo.png');
 
 function parseForm(body) {
   const out = {};
@@ -70,6 +76,14 @@ async function generateQuotePdf(ref, data) {
   const page = doc.addPage(PageSizes.A4);
   const { width, height } = page.getSize();
   const marginX = 52;
+
+  let logoImage;
+  try {
+    const logoBytes = fs.readFileSync(LOGO_PATH);
+    logoImage = await doc.embedPng(logoBytes);
+  } catch (e) {
+    console.error('Logo embed error', e);
+  }
   let y = height - 64;
 
   const black = rgb(15/255, 20/255, 25/255);
@@ -106,11 +120,17 @@ async function generateQuotePdf(ref, data) {
     return lines;
   }
 
-  page.drawRectangle({ x: 0, y: height - 48, width, height: 48, color: black });
-  page.drawRectangle({ x: 0, y: height - 46, width, height: 2, color: gold });
+  page.drawRectangle({ x: 0, y: height - 52, width, height: 52, color: black });
+  page.drawRectangle({ x: 0, y: height - 50, width, height: 2, color: gold });
 
-  y = height - 96;
-  y = drawText('AGENTIC BY MUTTI', marginX, y, bold, gold, 11);
+  const logoWidth = 140;
+  const logoHeight = logoWidth * (76 / 557);
+  const logoY = height - 50 - logoHeight;
+  if (logoImage) {
+    page.drawImage(logoImage, { x: marginX, y: logoY, width: logoWidth, height: logoHeight });
+  }
+
+  y = logoY - 18;
   y = drawText('QUOTATION', marginX, y, bold, black, 18);
   y -= 8;
 
@@ -163,8 +183,13 @@ async function generateQuotePdf(ref, data) {
   y = drawText('Pricing and availability depend on final unit selection, payment plan, and contract date.', marginX, y, font, muted, 9);
 
   page.drawRectangle({ x: marginX, y: 0, width: width - marginX * 2, height: 52, color: black });
-  page.drawText('Agentic by Mutti · salesmutti@gmail.com · +66 98 860 6410', {
-    x: marginX, y: 18, size: 10, font, color: gold
+  if (logoImage) {
+    const smallW = 76;
+    const smallH = smallW * (76 / 557);
+    page.drawImage(logoImage, { x: marginX, y: (52 - smallH) / 2, width: smallW, height: smallH });
+  }
+  page.drawText('salesmutti@gmail.com · +66 98 860 6410', {
+    x: marginX + 90, y: 18, size: 9, font, color: gold
   });
 
   return doc;
@@ -242,7 +267,7 @@ export default async (event) => {
       const resend = new Resend(resendKey);
       try {
         await resend.emails.send({
-          from: 'Agentic by Mutti <noreply@agenticphuket.com>',
+          from: 'Agentic <noreply@agenticphuket.com>',
           to: [email, 'salesmutti@gmail.com'].filter(Boolean),
           subject: `Your Agentic quotation — ${projectLabels[project] || 'Request'} (${ref})`,
           html: emailTemplate(ref, {
