@@ -1,5 +1,5 @@
 import http from 'http';
-import { handler } from './api/generate-quote.js';
+import handler from './api/generate-quote.js';
 
 const port = process.env.PORT || 3000;
 
