@@ -5,8 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const LOGO_PATH = path.join(__dirname, 'assets/images/agentic-logo.png');
-const PRICING_PATH = path.join(__dirname, 'pricing.json');
+const LOGO_PATH = path.join(__dirname, '..', 'assets/images/agentic-logo.png');
+const PRICING_PATH = path.join(__dirname, '..', 'pricing.json');
 const pricing = JSON.parse(fs.readFileSync(PRICING_PATH, 'utf8'));
 
 function parseForm(body) {
@@ -159,7 +159,7 @@ async function generateQuotePdf(ref, projectKey, data) {
 
   y = drawText('Project details', marginX, y, bold, black, 12);
   const pricingEntry = pricing[projectKey];
-  const unitKey = unit_type;
+  const unitKey = data.unit_type;
   const unitPricing = pricingEntry?.units?.[unitKey];
   const rows = [
     { label: 'Project', value: data.project },
