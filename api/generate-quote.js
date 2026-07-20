@@ -122,17 +122,43 @@ async function generateQuotePdf(ref, projectKey, data) {
     return lines;
   }
 
-  page.drawRectangle({ x: 0, y: height - 52, width, height: 52, color: black });
-  page.drawRectangle({ x: 0, y: height - 50, width, height: 2, color: gold });
+  function drawTable(startX, startY, headers, rows, colWidths) {
+    const rowHeight = 16;
+    const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+    let y = startY;
 
-  const logoWidth = 140;
+    // header background
+    page.drawRectangle({ x: startX, y: y - rowHeight, width: tableWidth, height: rowHeight, color: rgb(245/255, 245/255, 245/255) });
+    let x = startX + 4;
+    for (let i = 0; i < headers.length; i++) {
+      page.drawText(headers[i], { x, y: y - 11, size: 9, font: bold, color: black });
+      x += colWidths[i];
+    }
+    y -= rowHeight;
+
+    for (const row of rows) {
+      page.drawRectangle({ x: startX, y: y - rowHeight, width: tableWidth, height: rowHeight, color: rgb(250/255, 250/255, 250/255) });
+      x = startX + 4;
+      for (let i = 0; i < row.length; i++) {
+        page.drawText(row[i], { x, y: y - 10, size: 9, font, color: black, maxWidth: colWidths[i] - 8 });
+        x += colWidths[i];
+      }
+      y -= rowHeight;
+    }
+    return y - 8;
+  }
+
+  page.drawRectangle({ x: 0, y: height - 66, width, height: 66, color: black });
+  page.drawRectangle({ x: 0, y: height - 2, width, height: 2, color: gold });
+
+  const logoWidth = 160;
   const logoHeight = logoWidth * (76 / 557);
-  const logoY = height - 50 - logoHeight;
+  const logoY = height - 33 - logoHeight / 2;
   if (logoImage) {
     page.drawImage(logoImage, { x: marginX, y: logoY, width: logoWidth, height: logoHeight });
   }
 
-  y = logoY - 18;
+  y = logoY - 16;
   y = drawText('QUOTATION', marginX, y, bold, black, 18);
   y -= 8;
 
@@ -204,7 +230,29 @@ async function generateQuotePdf(ref, projectKey, data) {
     page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
     y -= 18;
     y = drawText('Payment plan', marginX, y, bold, black, 12);
-    y = drawText(pricingEntry.paymentPlan, marginX, y, font, muted, 9, true);
+
+    if (projectKey === 'mutti-family-villas') {
+      const milestones = [
+        ['Milestone', '%'],
+        ['Reservation', '2%'],
+        ['Contract signing', '28%'],
+        ['Foundation', '15%'],
+        ['Concrete structure', '15%'],
+        ['Wall / roof', '10%'],
+        ['Finishes / furniture', '10%'],
+        ['Handover', '10%'],
+        ['After transfer', '10%']
+      ];
+      y = drawTable(marginX, y, milestones.shift(), milestones, [220, 60]);
+    } else {
+      const terms = pricingEntry.paymentPlan
+        .replace(/\. (\w)/g, '.\n$1')
+        .split('\n')
+        .filter(Boolean);
+      for (const t of terms) {
+        y = drawText('• ' + t.trim(), marginX, y, font, muted, 9, true);
+      }
+    }
   }
 
   y -= 14;
