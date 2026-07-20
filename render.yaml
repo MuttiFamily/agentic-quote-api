@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: agentic-quote-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: RESEND_API_KEY
+        sync: false

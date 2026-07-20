@@ -1,0 +1,13 @@
+{
+  "name": "agentic-website",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "resend": "^4.0.0"
+  }
+}
