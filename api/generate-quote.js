@@ -308,7 +308,7 @@ async function generateQuotePdf(ref, data) {
         y = drawText(`• ${u.name}: ${u.text}`, marginX + 16, y, font, black, 9);
       }
       if (p.unitTypes.length > 4) {
-        y = drawText(`• +${p.unitTypes.length - 4} more configurations`, marginX + 16, y, muted, 9);
+        y = drawText(`• +${p.unitTypes.length - 4} more configurations`, marginX + 16, y, font, muted, 9);
       }
       y -= 4;
     }
