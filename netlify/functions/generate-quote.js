@@ -10,21 +10,6 @@ function parseForm(body) {
   return out;
 }
 
-const projectLabels = {
-  'mutti-family-villas': 'Mutti Family Villas',
-  'silhouette-by-the-zero': '"Silhouette" by The Zero',
-  'the-zero-bang-tao': 'The Zero Bang Tao',
-  'layan-lucky-villas': 'Layan Lucky Villas',
-  'other': 'Other / Investor build'
-};
-
-function unitLabel(v) {
-  return {
-    '3-bed-villa':'3-bed villa','4-bed-villa':'4-bed villa','5-bed-villa':'5-bed villa',
-    'studio':'Studio','1-bed':'1-bed','2-bed':'2-bed','plot':'Land / Plot',
-    'villa':'Villa','condo':'Condo','other':'Other'
-  }[v] || v || '—';
-}
 function budgetLabel(v) {
   return {
     'under-5m':'Under THB 5M','5m-20m':'THB 5M – 20M','20m-100m':'THB 20M – 100M','100m-plus':'THB 100M+'
@@ -54,8 +39,6 @@ function emailTemplate(ref, data) {
         <p style="color:#b0b8c4; margin:0;">Reference: ${ref}</p>
       </div>
       <div style="background:#1a2130; border:1px solid #2a3344; border-radius:12px; padding:20px; margin-bottom:20px;">
-        <p style="margin:0 0 8px; color:#b0b8c4;">Project</p>
-        <p style="margin:0 0 16px; font-weight:700;">${data.project}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Budget range</p>
         <p style="margin:0 0 16px;">${budgetLabel(data.budget_range) || '—'}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Timeline</p>
@@ -163,7 +146,6 @@ async function generateQuotePdf(ref, data) {
 
   y = drawText('Your profile', marginX, y, bold, black, 12);
   const profileRows = [
-    { label: 'Project', value: data.project },
     { label: 'Budget range', value: budgetLabel(data.budget_range) },
     { label: 'Timeline', value: timelineLabel(data.timeline) },
     { label: 'Primary intent', value: intentLabel(data.intent) },
@@ -287,7 +269,7 @@ export default async (event) => {
 
     const {
       name, email, phone, country,
-      project, unit_type, budget_range, timeline, message,
+      budget_range, timeline, message,
       intent, spending_style
     } = parsed;
 
@@ -302,8 +284,8 @@ export default async (event) => {
       email: email || '',
       phone: phone || '',
       country: country || '',
-      project: projectLabels[project] || project || 'Other',
-      unit_type, budget_range, timeline, message,
+      budget_range: budget_range || '',
+      timeline, message,
       intent, spending_style
     });
 
@@ -317,11 +299,10 @@ export default async (event) => {
         await resend.emails.send({
           from: 'Agentic by Mutti <noreply@agenticphuket.com>',
           to: [email, 'salesmutti@gmail.com'].filter(Boolean),
-          subject: `Your Agentic Advisory Overview — ${projectLabels[project] || 'Request'} (${ref})`,
+          subject: `Your Agentic Advisory Overview (${ref})`,
           html: emailTemplate(ref, {
             name: name || 'Valued Client',
-            project: projectLabels[project] || project || 'Other',
-            unit_type, budget_range, timeline,
+            budget_range, timeline,
             intent, spending_style
           }),
           attachments: [
