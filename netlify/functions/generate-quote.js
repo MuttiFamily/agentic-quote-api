@@ -1,13 +1,5 @@
 import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
 import { Resend } from 'resend';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const LOGO_PATH = path.join(__dirname, '..', 'assets/images/agentic-logo.png');
-const PRICING_PATH = path.join(__dirname, '..', 'pricing.json');
-const pricing = JSON.parse(fs.readFileSync(PRICING_PATH, 'utf8'));
 
 function parseForm(body) {
   const out = {};
@@ -78,19 +70,11 @@ function emailTemplate(ref, data) {
   `;
 }
 
-async function generateQuotePdf(ref, projectKey, data) {
+async function generateQuotePdf(ref, data) {
   const doc = await PDFDocument.create();
   const page = doc.addPage(PageSizes.A4);
   const { width, height } = page.getSize();
   const marginX = 52;
-
-  let logoImage;
-  try {
-    const logoBytes = fs.readFileSync(LOGO_PATH);
-    logoImage = await doc.embedPng(logoBytes);
-  } catch (e) {
-    console.error('Logo embed error', e);
-  }
   let y = height - 64;
 
   const black = rgb(15/255, 20/255, 25/255);
@@ -148,18 +132,12 @@ async function generateQuotePdf(ref, projectKey, data) {
     return py;
   }
 
-  page.drawRectangle({ x: 0, y: height - 66, width, height: 66, color: black });
-  page.drawRectangle({ x: 0, y: height - 2, width, height: 2, color: gold });
+  page.drawRectangle({ x: 0, y: height - 48, width, height: 48, color: black });
+  page.drawRectangle({ x: 0, y: height - 46, width, height: 2, color: gold });
 
-  const logoWidth = 160;
-  const logoHeight = logoWidth * (76 / 557);
-  const logoY = height - 33 - logoHeight / 2;
-  if (logoImage) {
-    page.drawImage(logoImage, { x: marginX, y: logoY, width: logoWidth, height: logoHeight });
-  }
-
-  y = logoY - 16;
-  y = drawText('AGENTIC ADVISORY OVERVIEW', marginX, y, bold, black, 18);
+  y = height - 96;
+  y = drawText('AGENTIC BY MUTTI', marginX, y, bold, gold, 11);
+  y = drawText('ADVISORY OVERVIEW', marginX, y, bold, black, 18);
   y -= 8;
 
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
@@ -176,6 +154,8 @@ async function generateQuotePdf(ref, projectKey, data) {
   y = drawText('Prepared for', marginX, y, bold, black, 12);
   y = drawText(`${data.name}`, marginX, y, font, black, 11);
   if (data.email) y = drawText(data.email, marginX, y, font, muted, 10);
+  if (data.phone) y = drawText(data.phone, marginX, y, font, muted, 10);
+  if (data.country) y = drawText(data.country, marginX, y, font, muted, 10);
   y -= 6;
 
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
@@ -207,35 +187,35 @@ async function generateQuotePdf(ref, projectKey, data) {
   y -= 16;
   y = drawText('How we would work with you', marginX, y, bold, black, 12);
 
-  const intent = data.intent || 'exploring';
-  const style = data.spending_style || 'researching';
-  const budget = data.budget_range || '';
+  const intentVal = data.intent || 'exploring';
+  const styleVal = data.spending_style || 'researching';
+  const budgetVal = data.budget_range || '';
 
   let lines = [];
-  if (intent === 'buy-to-live') {
+  if (intentVal === 'buy-to-live') {
     lines.push('We shortlist projects that match your lifestyle, location preference, and budget.');
     lines.push('You get direct viewings with our in-house team and transparent pricing — no agent markup.');
     lines.push('After handover, we handle title transfer, utilities setup, and after-sales support.');
-  } else if (intent === 'buy-to-invest') {
+  } else if (intentVal === 'buy-to-invest') {
     lines.push('We present units and projects with clear rental yield and resale drivers.');
     lines.push('We can align you with property-management options so your asset is rent-ready from day one.');
-    if (budget === 'under-5m') lines.push('Note: at this budget, best-fit options are typically agent-network condos; we can curate shortlist on request.');
-  } else if (intent === 'partner-investor') {
+    if (budgetVal === 'under-5m') lines.push('Note: at this budget, best-fit options are typically agent-network condos; we can curate shortlist on request.');
+  } else if (intentVal === 'partner-investor') {
     lines.push('Developer partnerships at Agentic usually require a 5M THB+ starting ticket.');
-    if (budget && budget !== '100m-plus' && budget !== '20m-100m') {
-      lines.push(`With your stated band, the most realistic pathway is an off-plan reservation with an extended payment plan, or co-investing through an agent-curated scheme.`);
+    if (budgetVal && budgetVal !== '100m-plus' && budgetVal !== '20m-100m') {
+      lines.push('With your stated band, the most realistic pathway is an off-plan reservation with an extended payment plan, or co-investing through an agent-curated scheme.');
     }
     lines.push('For larger tickets, we introduce you to deal flow, feasibility checks, and our construction track record.');
-  } else if (intent === 'exploring') {
+  } else if (intentVal === 'exploring') {
     lines.push('We map your situation across four pathways: direct purchase, off-plan, value-add, and development partnership.');
     lines.push('You get a clear comparison sheet with timelines, risk, and indicative ranges.');
   } else {
     lines.push('Tell us more in your notes so we can match you to the right Agentic pathway.');
   }
 
-  const styleLine = style === 'ready'
+  const styleLine = styleVal === 'ready'
     ? 'You’re ready to move: we prioritize docs, payment-plan lock, and a same-week proposal.'
-    : style === 'evaluating'
+    : styleVal === 'evaluating'
     ? 'You’re comparing options: we provide side-by-side project comparisons and a shortlist within 48 hours.'
     : 'You’re in research mode: we send a private advisory pack and stay in touch quarterly.';
   lines.push(styleLine);
@@ -257,18 +237,14 @@ async function generateQuotePdf(ref, projectKey, data) {
   y = drawText('Pricing, availability, and pathways depend on final unit selection, contract date, and verification.', marginX, y, font, muted, 9);
 
   page.drawRectangle({ x: marginX, y: 0, width: width - marginX * 2, height: 52, color: black });
-  if (logoImage) {
-    const smallW = 76;
-    const smallH = smallW * (76 / 557);
-    page.drawImage(logoImage, { x: marginX, y: (52 - smallH) / 2, width: smallW, height: smallH });
-  }
-  page.drawText('salesmutti@gmail.com · +66 98 860 6410', {
-    x: marginX + 90, y: 18, size: 9, font, color: gold
+  page.drawText('Agentic by Mutti · salesmutti@gmail.com · +66 98 860 6410', {
+    x: marginX + 90, y: 18, size: 10, font, color: gold
   });
 
   return doc;
 }
 
+// Returns Netlify-compatible plain object (works in both v1 and v2 runtimes)
 function jsonResponse(body, statusCode = 200) {
   return {
     statusCode,
@@ -307,12 +283,8 @@ export default async (event) => {
     }
 
     const body = typeof event.body === 'string' ? event.body : Buffer.from(event.body || '', 'base64').toString();
-    let parsed;
-    if (typeof event.headers?.['content-type'] === 'string' && event.headers['content-type'].includes('application/json')) {
-      try { parsed = JSON.parse(body); } catch { parsed = parseForm(body); }
-    } else {
-      parsed = parseForm(body);
-    }
+    const parsed = parseForm(body);
+
     const {
       name, email, phone, country,
       project, unit_type, budget_range, timeline, message,
@@ -325,7 +297,7 @@ export default async (event) => {
 
     const ref = 'AGT-' + new Date().getFullYear() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
 
-    const pdf = await generateQuotePdf(ref, project, {
+    const pdf = await generateQuotePdf(ref, {
       name: name || 'Valued Client',
       email: email || '',
       phone: phone || '',
@@ -343,7 +315,7 @@ export default async (event) => {
       const resend = new Resend(resendKey);
       try {
         await resend.emails.send({
-          from: 'Agentic <noreply@agenticphuket.com>',
+          from: 'Agentic by Mutti <noreply@agenticphuket.com>',
           to: [email, 'salesmutti@gmail.com'].filter(Boolean),
           subject: `Your Agentic Advisory Overview — ${projectLabels[project] || 'Request'} (${ref})`,
           html: emailTemplate(ref, {

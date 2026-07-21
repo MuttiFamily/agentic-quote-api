@@ -10,7 +10,7 @@
   <title>Get an Offer — Agentic</title>
   <meta property="og:type" content="website">
   <meta property="og:title" content="Get an Offer — Agentic">
-  <meta property="og:description" content="Request a quotation for any Agentic project. Villas, condos, turnkey builds.">
+  <meta property="og:description" content="Request your Agentic advisory overview. We match you to the right buying, investing, or development pathway.">
   <meta property="og:image" content="https://v3b.fal.media/files/b/0a9edf53/og-agentic-brand.png">
   <style>
     :root { --bg: #0f1419; --surface: #1a2130; --gold: #c5a059; --text: #e6e7ea; --muted: #b0b8c4; }
@@ -75,13 +75,13 @@
     </div>
     <div class="hero__content">
       <img src="../assets/images/agentic-logo.png" alt="Agentic" style="height:60px;margin-bottom:16px;">
-      <p>Select a project and tell us what you need. We'll prepare a formal quotation.</p>
+      <p>Select a project and tell us what you need. We'll prepare your advisory overview.</p>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <div class="label">Request quotation</div>
+      <div class="label">Request advisory overview</div>
       <div class="form-wrap">
         <form id="leadForm" name="leadForm" method="POST" action="https://agentic-quote-api-wj5v.onrender.com/api/generate-quote">
           <input type="hidden" name="bot-field">
@@ -154,7 +154,29 @@
                 <option value="exploring">Exploring</option>
               </select>
             </div>
-            <div></div>
+            <div>
+              <label for="intent">Primary intent</label>
+              <select id="intent" name="intent" required>
+                <option value="">Select…</option>
+                <option value="buy-to-live">Buy to live</option>
+                <option value="buy-to-invest">Buy to invest / rent out</option>
+                <option value="partner-investor">Partner as investor / developer</option>
+                <option value="exploring">Exploring</option>
+                <option value="other">Other — tell us in notes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="spending_style">How ready are you?</label>
+              <select id="spending_style" name="spending_style">
+                <option value="">Select…</option>
+                <option value="ready">Ready to proceed</option>
+                <option value="evaluating">Evaluating options</option>
+                <option value="researching">Just researching</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-row">
@@ -164,7 +186,7 @@
             </div>
           </div>
 
-          <button type="submit" class="btn">Request Offer →</button>
+          <button type="submit" class="btn">Request advisory overview →</button>
           <div id="formStatus" style="display:none;margin-top:14px;text-align:center;padding:10px;border-radius:8px;"></div>
         </form>
       </div>
@@ -261,7 +283,7 @@
         status.style.display = 'block';
         status.style.background = '#1a2130';
         status.style.color = '#c5a059';
-        status.textContent = 'Generating quotation…';
+        status.textContent = 'Generating your advisory overview…';
 
         try {
           const payload = new URLSearchParams(new FormData(form));
