@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="canonical" href="https://agenticphuket.com/">
+<link rel="icon" href="assets/favicon.ico">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#0f1419">
+<title>Agentic — Phuket Real Estate</title>
+<meta name="description" content="Luxury villas and condos in Phuket. Explore Mutti Family Villas (Bang Tao), The Zero Bang Tao, and Silhouette by The Zero (Nai Yang).">
+<meta property="og:title" content="Agentic — Phuket Developer & General Contractor">
+<meta property="og:description" content="Developer-direct villas and condos in Bang Tao, Nai Yang, and Chalong. Zero agent markup. 15+ years on the ground.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://v3b.fal.media/files/b/0a9edf53/1-8usKxBJHLbJX76dYo4b_8Ph6CDoX.png">
+<style>
+  :root { --bg: #0f1419; --bg-alt: #1a2130; --text: #e6e7ea; --muted: #b0b8c4; --border: rgba(255,255,255,0.12); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  a { color: inherit; text-decoration: none; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 10px; font-weight: 600; transition: transform .15s ease, box-shadow .15s ease; cursor: pointer; border: none; font-size: 15px; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,0.3); }
+  .btn-primary { background: #ffffff; color: #000; }
+  .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+  .label { display: inline-block; font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; opacity: 0.8; margin-bottom: 12px; color: var(--muted); }
+  .headline { font-size: clamp(30px, 5.2vw, 54px); font-weight: 700; line-height: 1.08; letter-spacing: -0.6px; }
+  .subhead { font-size: clamp(16px, 2.2vw, 20px); color: var(--muted); margin-top: 16px; max-width: 720px; }
+  .hero .subhead { color: #9ca3af; }
+  .section { padding: 88px 0; }
+  .section--alt { background: var(--bg-alt); }
+  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: rgba(15,20,25,0.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+  .nav .container { display: flex; align-items: center; justify-content: space-between; min-height: 64px; flex-wrap: wrap; }
+  .nav__logo { font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
+  .nav__links { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 14px; color: var(--muted); }
+  .nav__links a { transition: color .15s; }
+  .nav__links a:hover { color: #fff; }
+  
+  .hero { position: relative; min-height: 96vh; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; padding-top: 64px; }
+  .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,16,23,0.5) 0%, rgba(12,16,23,0.7) 100%); pointer-events: none; }
+  .hero__content { position: relative; z-index: 1; max-width: 920px; padding: 40px 24px; }
+  .hero__media { position: absolute; inset: 0; z-index: 0; }
+  .hero__media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5); }
+  .hero__actions { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .projects { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 40px; }
+  @media (min-width: 760px) { .projects { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1040px) { .projects { grid-template-columns: repeat(3, 1fr); } }
+  .project { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: transform .2s ease, border-color .2s ease; }
+  .project:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+  .project__media img { width: 100%; aspect-ratio: 16/10; object-fit: cover; background: #1a2330; }
+  .project__body { padding: 22px; }
+  .project__title { font-size: 20px; font-weight: 700; }
+  .project__meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  .project__actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .project__price { font-size: 22px; font-weight: 700; margin-top: 10px; color: #fff; }
+  .why-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 36px; }
+  @media (min-width: 640px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 920px) { .why-grid { grid-template-columns: repeat(3, 1fr); } }
+  .why { padding: 22px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); }
+  .why__title { font-weight: 600; margin-bottom: 6px; }
+  .why__text { font-size: 14px; color: var(--muted); }
+  .trust-strip__item { font-size: 13px; color: #d5d8e0; }
+  .cta-form { background: var(--bg-alt); border-radius: 16px; padding: 28px; border: 1px solid var(--border); max-width: 640px; margin: 0 auto; }
+  .form-row { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 16px; }
+  @media (min-width: 520px) { .form-row--2 { grid-template-columns: 1fr 1fr; } }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  input, select, textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: var(--bg); color: #e6e7ea; font-size: 16px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: rgba(255,255,255,0.4); }
+  .form-submit { margin-top: 20px; width: 100%; justify-content: center; }
+  .footer { text-align: center; padding: 70px 24px 120px; color: var(--muted); font-size: 13px; }
+  .footer a { text-decoration: underline; color: #e6e7ea; }
+</style>
+<script>
+  (function(){
+    const params = new URLSearchParams(window.location.search);
+    const utm = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+    utm.forEach(k => { if (params.has(k)) localStorage.setItem(k, params.get(k)); });
+  })();
+</script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container">
+    <img loading="lazy" class="nav-logo" src="assets/images/agentic-logo.png" alt="Agentic">
+    <div class="nav__links">
+      <a href="/">Home</a>
+      <a href="/projects">Projects</a>
+      <a href="/get-an-offer/">Get an Offer</a>
+      <a href="/investors">Investors</a>
+      <a href="/phuket-insights/">Phuket Insights</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero__media" style="position: absolute; inset: 0; z-index: 0;">
+    <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Phuket_Aerial.jpg/960px-Phuket_Aerial.jpg?v=alt1" alt="Phuket coastline hero" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5);">
+  </div>
+  <div class="hero__content" style="position: relative; z-index: 1; max-width: 920px; padding: 40px 24px;">
+    <div class="label">Phuket Developer & General Contractor</div>
+    <h1 class="headline">Local roots.<br>Island expertise.<br>End-to-end development.</h1>
+    <div class="hero__actions">
+      <a class="btn btn-primary" href="/projects" style="padding:10px 18px;font-size:14px;">Buy</a>
+      <a class="btn btn-primary" href="/#enquire" style="padding:10px 18px;font-size:14px;">Rent</a>
+      <a class="btn btn-primary" href="/investors" style="padding:10px 18px;font-size:14px;">Invest</a>
+    </div>
+    <div class="trust-strip" style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 28px;">
+      <span class="trust-strip__item" style="font-size: 13px; color: var(--muted);">15+ Years Phuket</span>
+      <span class="trust-strip__item" style="font-size: 13px; color: var(--muted);">Due Diligence</span>
+      <span class="trust-strip__item" style="font-size: 13px; color: var(--muted);">We Advise, You Choose</span>
+    </div>
+  </div>
+</section>
+
+<!-- ADVISORY -->
+<section class="section section--alt" id="advisory">
+  <div class="container" style="text-align: center;">
+    <div class="label">Advisory</div>
+    <h2 class="headline" style="margin-top:0;">
+      Developer knowledge.<br>Advisory from day one.
+    </h2>
+    <div class="label" style="margin-top: 28px;">What we do</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 960px; margin: 0 auto 48px; text-align: left;">
+      <div class="why" style="flex: 1 1 220px;">
+        <div class="why__title">Find your property</div>
+        <div class="why__text">Developer-direct villas and condos across Phuket, plus hand-picked partner projects. No agent markup.</div>
+      </div>
+      <div class="why" style="flex: 1 1 220px;">
+        <div class="why__title">Rental placement</div>
+        <div class="why__text">We match you with the right rental property in Phuket.</div>
+      </div>
+      <div class="why" style="flex: 1 1 220px;">
+        <div class="why__title">Off-plan &amp; in-house build</div>
+        <div class="why__text">Buy off-plan and build out with our in-house team — interiors, finishes, layouts.</div>
+      </div>
+      <div class="why" style="flex: 1 1 220px;">
+        <div class="why__title">Buy second-hand &amp; renovate</div>
+        <div class="why__text">We help you buy discounted resale, renovate, and flip for higher value.</div>
+      </div>
+      <div class="why" style="flex: 1 1 220px;">
+        <div class="why__title">Become a developer</div>
+        <div class="why__text">Feasibility consultation from a team that has built in Phuket for 15+ years. We design, permit, and build with you. You own the asset. Fixed-price delivery.</div>
+      </div>
+      <div class="why" style="flex: 1 1 220px;">
+        <div class="why__title">Build your Business</div>
+        <div class="why__text">We are your developer and consultant — from concept and permits to delivery and first guests.</div>
+      </div>
+    </div>
+
+    <h2 class="headline" style="margin-top:0;">Features</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 960px; margin: 0 auto 28px; text-align: left;">
+      <div class="why" style="flex: 1 1 260px;">
+        <div class="why__title">Due diligence</div>
+        <div class="why__text">Every partner project is vetted on titles, permits, and developer track record.</div>
+      </div>
+      <div class="why" style="flex: 1 1 260px;">
+        <div class="why__title">In-house construction</div>
+        <div class="why__text">Our own builds are managed end-to-end. Partner projects are built by them — we stand behind them and keep you informed at every step.</div>
+      </div>
+      <div class="why" style="flex: 1 1 260px;">
+        <div class="why__title">After-sales</div>
+        <div class="why__text">We stay involved after handover — from rental referrals to maintenance.</div>
+      </div>
+      <div class="why" style="flex: 1 1 260px;">
+        <div class="why__title">Full-service team</div>
+        <div class="why__text">Architects, engineers, legal, and accounting in-house — one partner, no coordination gaps.</div>
+      </div>
+    </div>
+    <a class="btn btn-primary" href="/projects" style="padding: 14px 28px; font-size: 15px;">
+      See our Projects →
+    </a>
+  </div>
+</section>
+
+
+<section class="section" id="enquire">
+  <div class="container">
+    <div class="label">Enquire</div>
+    <h2 class="headline" style="margin-top:0;">Start a conversation.</h2>
+    <p class="subhead" style="margin:0 auto 28px;">Tell us what you're looking for. We reply within one business day.</p>
+
+    <form class="cta-form" id="leadForm" name="leadForm" netlify netlify-honeypot method="POST" action="">
+      <input type="hidden" name="bot-field">
+      <input type="hidden" name="utm_source" id="utm_source">
+      <input type="hidden" name="utm_medium" id="utm_medium">
+      <input type="hidden" name="utm_campaign" id="utm_campaign">
+      <input type="hidden" name="utm_content" id="utm_content">
+      <input type="hidden" name="utm_term" id="utm_term">
+      <input type="hidden" name="landing_page" value="Homepage">
+      <input type="hidden" name="timestamp" id="timestamp">
+      <input type="hidden" name="link" id="link">
+
+      <div class="form-row form-row--2">
+        <div>
+          <label for="name">Full name *</label>
+          <input type="text" id="name" name="name" placeholder="Your name" required>
+        </div>
+        <div>
+          <label for="phone">Phone *</label>
+          <input type="tel" id="phone" name="phone" placeholder="+66 98 860 6410" required>
+        </div>
+      </div>
+
+      <div class="form-row form-row--2">
+        <div>
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" placeholder="you@domain.com" required>
+        </div>
+        <div>
+          <label for="interest">Interested in</label>
+          <select id="interest" name="interest">
+            <option value="">Select…</option>
+            <option value="villas">Villas</option>
+            <option value="condos">Condos</option>
+            <option value="investment">Investment</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label for="message">Message (optional)</label>
+          <textarea id="message" name="message" rows="4" placeholder="Budget, timeline, location preference..."></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary form-submit">Send Enquiry →</button>
+      <div id="formStatus" style="display:none;margin-top:14px;text-align:center;padding:10px;border-radius:8px;"></div>
+    </form>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p style="font-weight:600;color:#fff;">Agentic · Big Man Asset</p>
+    <p style="margin-top:6px;">Developer & General Contractor · Phuket, Thailand</p>
+    <p style="margin-top:8px;"><a href="mailto:info@agenticphuket.com">info@agenticphuket.com</a> · <a href="tel:+669****6410">+66 98 860 6410</a></p>
+    <p style="margin-top:8px;"><a href="assets/Company-Profile.pdf" target="_blank" rel="noopener">Company Profile (PDF)</a></p>
+    <p style="margin-top:12px;font-size:12px;">© <span id="year"></span> Agentic. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  document.addEventListener('DOMContentLoaded', function() {
+    var ts = document.getElementById('timestamp');
+    if (ts) ts.value = new Date().toISOString();
+
+    var link = document.getElementById('link');
+    if (link) link.value = window.location.href;
+
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function(k) {
+      var el = document.getElementById(k);
+      if (el) el.value = localStorage.getItem(k) || '';
+    });
+  });
+</script>
+<style>
+  .nav-logo { height: 36px; width: auto; display: block; }
+  body { padding-bottom: 84px; }
+  @media (min-width: 720px) { body { padding-bottom: 0; } }
+</style>
+</body>
+</html>
