@@ -30,6 +30,15 @@ function spendingStyleLabel(v) {
     'ready':'Ready to proceed','evaluating':'Evaluating options','researching':'Just researching'
   }[v] || v || '—';
 }
+function pathwayLabel(v) {
+  return {
+    'buy-to-live':'Direct shortlist + viewings',
+    'buy-to-invest':'Yield + property management',
+    'partner-investor':'Deal flow + feasibility',
+    'exploring':'Four-pathway comparison',
+    'other':'Tailored match'
+  }[v] || '—';
+}
 
 function emailTemplate(ref, data) {
   return `
@@ -39,6 +48,8 @@ function emailTemplate(ref, data) {
         <p style="color:#b0b8c4; margin:0;">Reference: ${ref}</p>
       </div>
       <div style="background:#1a2130; border:1px solid #2a3344; border-radius:12px; padding:20px; margin-bottom:20px;">
+        <p style="margin:0 0 8px; color:#b0b8c4;">Recommended pathway</p>
+        <p style="margin:0 0 18px; font-weight:700; font-size:18px; color:#e6e7ea;">${pathwayLabel(data.intent)}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Budget range</p>
         <p style="margin:0 0 16px;">${budgetLabel(data.budget_range) || '—'}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Timeline</p>
@@ -119,7 +130,7 @@ async function generateQuotePdf(ref, data) {
   page.drawRectangle({ x: 0, y: height - 46, width, height: 2, color: gold });
 
   y = height - 96;
-  y = drawText('AGENTIC BY MUTTI', marginX, y, bold, gold, 11);
+  y = drawText('AGENTIC', marginX, y, bold, gold, 11);
   y = drawText('ADVISORY OVERVIEW', marginX, y, bold, black, 18);
   y -= 8;
 
@@ -135,7 +146,7 @@ async function generateQuotePdf(ref, data) {
   y -= 18;
 
   y = drawText('Prepared for', marginX, y, bold, black, 12);
-  y = drawText(`${data.name}`, marginX, y, font, black, 11);
+  y = drawText(`${data.name || 'Valued Client'}`, marginX, y, font, black, 11);
   if (data.email) y = drawText(data.email, marginX, y, font, muted, 10);
   if (data.phone) y = drawText(data.phone, marginX, y, font, muted, 10);
   if (data.country) y = drawText(data.country, marginX, y, font, muted, 10);
@@ -167,48 +178,124 @@ async function generateQuotePdf(ref, data) {
   y -= 14;
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
   y -= 16;
-  y = drawText('How we would work with you', marginX, y, bold, black, 12);
+  y = drawText('Recommended pathway', marginX, y, bold, black, 12);
+  y = drawText(pathwayLabel(data.intent), marginX, y, font, black, 11, true);
+  y -= 6;
 
-  const intentVal = data.intent || 'exploring';
-  const styleVal = data.spending_style || 'researching';
-  const budgetVal = data.budget_range || '';
+  const intent = data.intent || 'exploring';
+  const style = data.spending_style || 'researching';
+  const budget = data.budget_range || '';
 
-  let lines = [];
-  if (intentVal === 'buy-to-live') {
-    lines.push('We shortlist projects that match your lifestyle, location preference, and budget.');
-    lines.push('You get direct viewings with our in-house team and transparent pricing — no agent markup.');
-    lines.push('After handover, we handle title transfer, utilities setup, and after-sales support.');
-  } else if (intentVal === 'buy-to-invest') {
-    lines.push('We present units and projects with clear rental yield and resale drivers.');
-    lines.push('We can align you with property-management options so your asset is rent-ready from day one.');
-    if (budgetVal === 'under-5m') lines.push('Note: at this budget, best-fit options are typically agent-network condos; we can curate shortlist on request.');
-  } else if (intentVal === 'partner-investor') {
-    lines.push('Developer partnerships at Agentic usually require a 5M THB+ starting ticket.');
-    if (budgetVal && budgetVal !== '100m-plus' && budgetVal !== '20m-100m') {
-      lines.push('With your stated band, the most realistic pathway is an off-plan reservation with an extended payment plan, or co-investing through an agent-curated scheme.');
+  let pathwayLines = [];
+  if (intent === 'buy-to-live') {
+    pathwayLines.push('We shortlist projects that match your lifestyle, location preference, and budget.');
+    pathwayLines.push('You get direct viewings with our in-house team and transparent pricing — no agent markup.');
+    pathwayLines.push('After handover, we handle title transfer, utilities setup, and after-sales support.');
+  } else if (intent === 'buy-to-invest') {
+    pathwayLines.push('We present units and projects with clear rental yield and resale drivers.');
+    pathwayLines.push('We can align you with property-management options so your asset is rent-ready from day one.');
+    if (budget === 'under-5m') pathwayLines.push('Note: at this budget, best-fit options are typically agent-network condos; we can curate shortlist on request.');
+  } else if (intent === 'partner-investor') {
+    pathwayLines.push('Developer partnerships at Agentic usually require a 5M THB+ starting ticket.');
+    if (budget && budget !== '100m-plus' && budget !== '20m-100m') {
+      pathwayLines.push('With your stated band, the most realistic pathway is an off-plan reservation with an extended payment plan, or co-investing through an agent-curated scheme.');
     }
-    lines.push('For larger tickets, we introduce you to deal flow, feasibility checks, and our construction track record.');
-  } else if (intentVal === 'exploring') {
-    lines.push('We map your situation across four pathways: direct purchase, off-plan, value-add, and development partnership.');
-    lines.push('You get a clear comparison sheet with timelines, risk, and indicative ranges.');
+    pathwayLines.push('For larger tickets, we introduce you to deal flow, feasibility checks, and our construction track record.');
+  } else if (intent === 'exploring') {
+    pathwayLines.push('We map your situation across four pathways: direct purchase, off-plan, value-add, and development partnership.');
+    pathwayLines.push('You get a clear comparison sheet with timelines, risk, and indicative ranges.');
   } else {
-    lines.push('Tell us more in your notes so we can match you to the right Agentic pathway.');
+    pathwayLines.push('Tell us more in your notes so we can match you to the right Agentic pathway.');
   }
 
-  const styleLine = styleVal === 'ready'
+  const styleLine = style === 'ready'
     ? 'You’re ready to move: we prioritize docs, payment-plan lock, and a same-week proposal.'
-    : styleVal === 'evaluating'
+    : style === 'evaluating'
     ? 'You’re comparing options: we provide side-by-side project comparisons and a shortlist within 48 hours.'
     : 'You’re in research mode: we send a private advisory pack and stay in touch quarterly.';
-  lines.push(styleLine);
+  pathwayLines.push(styleLine);
 
-  for (const text of lines) {
+  for (const text of pathwayLines) {
     y = drawBullet(text, marginX, y, font, black, 10);
   }
 
+  y -= 14;
+  page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
+  y -= 16;
+  y = drawText('Ideas for you', marginX, y, bold, black, 12);
+
+  let ideas = [];
+  if (intent === 'buy-to-live') {
+    ideas.push('Start with lifestyle-first shortlisting: beach, amenities, commute.');
+    ideas.push('We compare turnkey vs off-plan so you know real total cost.');
+    ideas.push('After-sales includes title transfer, utilities, and warranty coordination.');
+  } else if (intent === 'buy-to-invest') {
+    ideas.push('Prioritize projects with in-house management to protect net yield.');
+    ideas.push('Off-plan payment plans can preserve liquidity until handover.');
+    ideas.push('We model gross and net yield, plus resale drivers, before you commit.');
+    if (budget === 'under-5m') ideas.push('At this band, agent-network condos often outperform new builds on cash flow.');
+  } else if (intent === 'partner-investor') {
+    ideas.push('Start with a feasibility check — land, zoning, unit mix, hard cost.');
+    ideas.push('Fixed-price delivery removes contractor and material risk.');
+    ideas.push('Our 15-year track record is available for due-diligence review.');
+    if (budget === 'under-5m' || budget === '5m-20m') ideas.push('For mid-size tickets, co-investing structures can still give you equity upside.');
+  } else if (intent === 'exploring') {
+    ideas.push('Build new: 20–35% ROI, 18–36 months.');
+    ideas.push('Off-plan: 15–25% ROI, 12–24 months.');
+    ideas.push('Value-add: 15–30% ROI, 12–24 months.');
+    ideas.push('Build your business: 25–40% ROI, 24–48 months.');
+  } else {
+    ideas.push('Share more about your goal and we will map the right Agentic pathway.');
+  }
+
+  const readinessIdea = style === 'ready'
+    ? 'Lock docs and payment plan first — we can move same week.'
+    : style === 'evaluating'
+    ? 'Request a side-by-side project comparison and a 48-hour shortlist.'
+    : 'Ask for our private advisory pack and quarterly market update.';
+  ideas.push(readinessIdea);
+
+  for (const text of ideas.slice(0, 6)) {
+    y = drawBullet(text, marginX, y, font, black, 10);
+  }
+
+  // By the numbers
+  y -= 14;
+  page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
+  y -= 16;
+  y = drawText('By the numbers', marginX, y, bold, black, 12);
+  y -= 4;
+
+  const byNumbers = [
+    { label: 'Build new', value: '20–35% ROI', sub: '18–36 months · Medium–High risk' },
+    { label: 'Off-plan', value: '15–25% ROI', sub: '12–24 months · Medium–High risk' },
+    { label: 'Value-add', value: '15–30% ROI', sub: '12–24 months · Medium–High risk' },
+    { label: 'Build your business', value: '25–40% ROI', sub: '24–48 months · High risk' }
+  ];
+
+  const col1X = marginX;
+  const col2X = marginX + (width - marginX * 2) / 2 + 12;
+  let colY = y;
+  for (let i = 0; i < byNumbers.length; i++) {
+    const item = byNumbers[i];
+    const x = i < 2 ? col1X : col2X;
+    const rowBase = i % 2 === 0 ? colY : colY - 28;
+    const rx = x;
+    const ry = rowBase;
+    page.drawRectangle({ x: rx - 6, y: ry - 44, width: (width - marginX * 2) / 2 - 12, height: 54, color: rgb(250/255, 251/255, 252/255) });
+    page.drawRectangle({ x: rx - 6, y: ry - 44, width: (width - marginX * 2) / 2 - 12, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
+    page.drawText(item.label, { x: rx, y: ry - 14, size: 10, font: bold, color: black });
+    page.drawText(item.value, { x: rx, y: ry - 26, size: 10, font: bold, color: gold });
+    page.drawText(item.sub, { x: rx, y: ry - 36, size: 9, font, color: muted });
+
+    if (i === 1) colY -= 56;
+  }
+  y = colY - 18;
+
+  // Next step
   y -= 10;
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
-  y -= 18;
+  y -= 16;
   y = drawText('Next step', marginX, y, bold, black, 12);
   y = drawText('Reply to this email or WhatsApp +66 98 860 6410. We normally respond within one business day.', marginX, y, font, black, 10, true);
 
@@ -218,8 +305,9 @@ async function generateQuotePdf(ref, data) {
   y = drawText('This overview is indicative and intended to start a conversation, not to constitute a binding quote.', marginX, y, font, muted, 9);
   y = drawText('Pricing, availability, and pathways depend on final unit selection, contract date, and verification.', marginX, y, font, muted, 9);
 
+  // Footer
   page.drawRectangle({ x: marginX, y: 0, width: width - marginX * 2, height: 52, color: black });
-  page.drawText('Agentic by Mutti · salesmutti@gmail.com · +66 98 860 6410', {
+  page.drawText('info@agenticphuket.com · +66 98 860 6410', {
     x: marginX + 90, y: 18, size: 10, font, color: gold
   });
 
@@ -297,7 +385,7 @@ export default async (event) => {
       const resend = new Resend(resendKey);
       try {
         await resend.emails.send({
-          from: 'Agentic by Mutti <noreply@agenticphuket.com>',
+          from: 'Agentic <noreply@agenticphuket.com>',
           to: [email, 'salesmutti@gmail.com'].filter(Boolean),
           subject: `Your Agentic Advisory Overview (${ref})`,
           html: emailTemplate(ref, {
