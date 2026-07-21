@@ -6,8 +6,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOGO_PATH = path.join(__dirname, '..', 'assets/images/agentic-logo.png');
-const PRICING_PATH = path.join(__dirname, '..', 'pricing.json');
-const pricing = JSON.parse(fs.readFileSync(PRICING_PATH, 'utf8'));
+const INVENTORY_PATH = path.join(__dirname, '..', 'inventory.json');
+const inventory = JSON.parse(fs.readFileSync(INVENTORY_PATH, 'utf8'));
 
 function parseForm(body) {
   const out = {};
@@ -48,105 +48,6 @@ function pathwayLabel(v) {
   }[v] || '—';
 }
 
-const PROJECTS = [
-  {
-    slug: 'mutti-family-villas',
-    name: 'Mutti Family Villas',
-    location: 'Chalong',
-    priceFrom: 19900000,
-    priceTo: 49800000,
-    type: 'villa',
-    beds: '3–6',
-    note: 'Developer-direct · 0% interest up to 24 months · Private pool · 8% advertised rental program',
-    unitTypes: [
-      { name: 'Pearl', beds: '3', priceFrom: 19900000, text: 'From THB 19.9M' },
-      { name: 'Coral', beds: '4–5', priceFrom: 24500000, text: 'From ~THB 24.5M' },
-      { name: 'Breeze', beds: '5', priceFrom: 34300000, text: 'From ~THB 34.3M' },
-      { name: 'Azure', beds: '6', priceFrom: 43425000, text: 'From THB 43.4M' }
-    ],
-    buyerHook: (budget) => {
-      if (budget === 'under-5m') return 'Below this project\'s entry price — see Silhouette or The Zero Bang Tao instead.';
-      if (budget === '5m-20m') return 'Best fit in this band is Pearl (3-bed) if available. Ask about current placement.';
-      return 'We can curate available units matching your bed/location preference.';
-    },
-    investorHook: (b) => {
-      if (b === 'under-5m' || b === '5m-20m') return 'Reservation of a Pearl or Coral unit, then rental-managed.';
-      return 'Multi-unit block ownership can boost net yield. We model scenarios by plot mix.';
-    }
-  },
-  {
-    slug: 'silhouette-naiyang',
-    name: 'Silhouette by The Zero',
-    location: 'Nai Yang',
-    priceFrom: 4300000,
-    priceTo: 18500000,
-    type: 'condo',
-    beds: 'Studio–2',
-    note: 'Developer-direct · 2026 Q4 · 10% guaranteed ROI* · In-house management · British-standard finishes',
-    unitTypes: [
-      { name: 'Studio', beds: 'Studio', priceFrom: 4300000, text: 'From THB 4.3M' },
-      { name: '1 Bed', beds: '1', priceFrom: 5200000, text: 'From THB 5.2M' },
-      { name: '2 Bed', beds: '2', priceFrom: 7700000, text: 'From THB 7.7M' }
-    ],
-    buyerHook: (budget) => {
-      return 'All listed unit types are within your budget band. We confirm current availability on request.';
-    },
-    investorHook: (b) => {
-      if (b === 'under-5m') return 'Studio entry is the cleanest cash-flow play at this band.';
-      if (b === '5m-20m') return 'Stackable 1-bed units work well for mid-term rental; we model net yield.';
-      return 'Two-unit or mixed-bed allocations are possible and improve diversification.';
-    }
-  },
-  {
-    slug: 'the-zero-bang-tao',
-    name: 'The Zero Bang Tao',
-    location: 'Bang Tao',
-    priceFrom: 4900000,
-    priceTo: 13100000,
-    type: 'condo',
-    beds: 'Studio–3',
-    note: 'Developer-direct · 2027 delivery · 11% advertised ROI with in-house management · 5% upfront discount',
-    unitTypes: [
-      { name: 'Studio', beds: 'Studio', priceFrom: 4900000, text: 'From THB 4.9M' },
-      { name: '1 Bed', beds: '1', priceFrom: 5300000, text: 'From ~THB 5.3M' },
-      { name: '2 Bed', beds: '2', priceFrom: 6600000, text: 'From ~THB 6.6M' },
-      { name: '2 Bed+', beds: '2+', priceFrom: 7600000, text: 'From ~THB 7.6M' },
-      { name: '3 Bed', beds: '3', priceFrom: 11400000, text: 'From ~THB 11.4M' },
-      { name: 'Penthouse', beds: '2+', priceFrom: 13100000, text: 'From ~THB 13.1M' }
-    ],
-    buyerHook: (budget) => {
-      if (budget === 'under-5m') return 'Studio is within reach at the entry price point.';
-      return 'Studio to 3-bed options all sit inside your band. Ask for latest availability.';
-    },
-    investorHook: (b) => {
-      if (b === 'under-5m' || b === '5m-20m') return 'Studio and 1-bed units give the lowest cash threshold and simplest management.';
-      return 'Stacking 2-bed units at Bang Tao cash-flow rates; we can model co-invest splits.';
-    }
-  },
-  {
-    slug: 'layan-lucky-villas',
-    name: 'Layan Lucky Villas',
-    location: 'Layan',
-    priceFrom: 47600000,
-    priceTo: 67800000,
-    type: 'villa',
-    beds: '3–4',
-    note: 'Developer-direct · Phase II underway · Construction-linked payments · Smart home · Owner concierge',
-    unitTypes: [
-      { name: '4-Bed Villa', beds: '4', priceFrom: 47600000, text: 'From THB 47.6M' }
-    ],
-    buyerHook: (budget) => {
-      if (budget === 'under-5m' || budget === '5m-20m') return 'Above your stated budget — ask about future Phases.';
-      if (budget === '20m-100m') return '4-bed sits in this band; ask for current Phase II placements.';
-      return 'We can reserve a 4-bed villa and lock construction-linked payment terms.';
-    },
-    investorHook: (b) => {
-      if (b === 'under-5m' || b === '5m-20m' || b === '20m-100m') return 'Above ticket for this Specific project; revisit at higher allocation.';
-      return 'Full villa ownership with concierge management is the play here.';
-    }
-  }
-];
-
 function budgetMin(v) {
   return { 'under-5m':0, '5m-20m':5000000, '20m-100m':20000000, '100m-plus':100000000 }[v] || 0;
 }
@@ -154,38 +55,23 @@ function budgetMax(v) {
   return { 'under-5m':5000000, '5m-20m':20000000, '20m-100m':100000000, '100m-plus': Infinity }[v] || Infinity;
 }
 
-function matchedProjects(budget, intent, style) {
+function matchedProjects(budget) {
   const lower = budgetMin(budget);
   const upper = budgetMax(budget);
-  // filter by price band
-  let matches = PROJECTS.filter(p => p.priceFrom <= upper && p.priceTo >= lower);
-  // sort by closeness to lower bound
+  const projects = inventory.projects || [];
+  let matches = projects.filter(p => p.priceFrom <= upper && p.priceTo >= lower);
   matches.sort((a, b) => a.priceFrom - b.priceFrom);
   return matches.slice(0, 2);
 }
 
-function investorScenario(budget, intent, style) {
-  const lower = budgetMin(budget);
-  const upper = budgetMax(budget);
-  if (budget === 'under-5m') {
-    return 'Entry in Silhouette or The Zero Bang Tao — studio to 1-bed units fit this band. These projects give the lowest cash threshold and are managed in-house, so your net yield is closer to headline ROI. Ask us for current availability and payment plans.';
-  }
-  if (budget === '5m-20m') {
-    return 'Up to two units in Silhouette or The Zero Bang Tao can sit inside this band. 1-bed to 2-bed mix works well: one unit funds debt service, the other can be pure equity upside. We can build a side-by-side scenario for the same developer or mix across projects.';
-  }
-  if (budget === '20m-100m') {
-    return 'Realistic options: block of 2–3 condos in The Zero Bang Tao, or a Coral or Breeze villa at Mutti Family Villas. Villas on individual land titles add an asset class differentiator. We can model gross yield, net yield after management fee, and projected resale uplift.';
-  }
-  if (budget === '100m-plus') {
-    return 'Possible paths: multi-villa portfolio at Chalong, 4–6 condos across Nai Yang + Bang Tao, or reserved interest in upcoming phases. For tickets above this level we can structure co-investment terms.';
-  }
-  return 'Share your budget band and we’ll map exact project combinations.';
+function investorScenario(budget) {
+  return (inventory.investorScenarios && inventory.investorScenarios[budget]) || 'Share your budget band and we’ll map exact project combinations.';
 }
 
 function emailTemplate(ref, data) {
-  const projects = matchedProjects(data.budget_range, data.intent, data.spending_style);
+  const projects = matchedProjects(data.budget_range);
   const scenarioText = (data.intent === 'buy-to-invest' || data.intent === 'partner-investor')
-    ? investorScenario(data.budget_range, data.intent, data.spending_style)
+    ? investorScenario(data.budget_range)
     : null;
 
   const projectsHtml = projects.map(p => `
@@ -369,7 +255,7 @@ async function generateQuotePdf(ref, data) {
   const intent = data.intent || 'exploring';
   const style = data.spending_style || 'researching';
   const budget = data.budget_range || '';
-  const projects = matchedProjects(budget, intent, style);
+  const projects = matchedProjects(budget);
 
   let pathwayLines = [];
   if (intent === 'buy-to-live') {
@@ -430,7 +316,7 @@ async function generateQuotePdf(ref, data) {
 
   // What your budget can buy
   const scenarioText = (intent === 'buy-to-invest' || intent === 'partner-investor')
-    ? investorScenario(budget, intent, style)
+    ? investorScenario(budget)
     : null;
 
   if (scenarioText) {

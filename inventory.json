@@ -1,0 +1,111 @@
+{
+  "projects": [
+    {
+      "slug": "mutti-family-villas",
+      "name": "Mutti Family Villas",
+      "location": "Chalong",
+      "priceFrom": 19900000,
+      "priceTo": 49800000,
+      "type": "villa",
+      "beds": "3–6",
+      "note": "Developer-direct · 0% interest up to 24 months · Private pool · 8% advertised rental program",
+      "unitTypes": [
+        { "name": "Pearl", "beds": "3", "priceFrom": 19900000, "text": "From THB 19.9M" },
+        { "name": "Coral", "beds": "4–5", "priceFrom": 24500000, "text": "From ~THB 24.5M" },
+        { "name": "Breeze", "beds": "5", "priceFrom": 34300000, "text": "From ~THB 34.3M" },
+        { "name": "Azure", "beds": "6", "priceFrom": 43425000, "text": "From THB 43.4M" }
+      ],
+      "buyerHook": {
+        "under-5m": "Below this project's entry price — see Silhouette or The Zero Bang Tao instead.",
+        "5m-20m": "Best fit in this band is Pearl (3-bed) if available. Ask about current placement.",
+        "default": "We can curate available units matching your bed/location preference."
+      },
+      "investorHook": {
+        "under-5m": "Below ticket for this project; see Silhouette or The Zero Bang Tao for lower entry points.",
+        "5m-20m": "Reservation of a Pearl unit, then rental-managed.",
+        "default": "Multi-unit block ownership can boost net yield. We model scenarios by plot mix."
+      }
+    },
+    {
+      "slug": "silhouette-by-the-zero",
+      "name": "Silhouette by The Zero",
+      "location": "Nai Yang",
+      "priceFrom": 4300000,
+      "priceTo": 18500000,
+      "type": "condo",
+      "beds": "Studio–2",
+      "note": "Developer-direct · 2026 Q4 · 10% guaranteed ROI* · In-house management · British-standard finishes",
+      "unitTypes": [
+        { "name": "Studio", "beds": "Studio", "priceFrom": 4300000, "text": "From THB 4.3M" },
+        { "name": "1 Bed", "beds": "1", "priceFrom": 5200000, "text": "From THB 5.2M" },
+        { "name": "2 Bed", "beds": "2", "priceFrom": 7700000, "text": "From THB 7.7M" }
+      ],
+      "buyerHook": {
+        "default": "All listed unit types are within your budget band. We confirm current availability on request."
+      },
+      "investorHook": {
+        "under-5m": "Studio entry is the cleanest cash-flow play at this band.",
+        "5m-20m": "Stackable 1-bed units work well for mid-term rental; we model net yield.",
+        "default": "Two-unit or mixed-bed allocations are possible and improve diversification."
+      }
+    },
+    {
+      "slug": "the-zero-bang-tao",
+      "name": "The Zero Bang Tao",
+      "location": "Bang Tao",
+      "priceFrom": 4900000,
+      "priceTo": 13100000,
+      "type": "condo",
+      "beds": "Studio–3",
+      "note": "Developer-direct · 2027 delivery · 11% advertised ROI with in-house management · 5% upfront discount",
+      "unitTypes": [
+        { "name": "Studio", "beds": "Studio", "priceFrom": 4900000, "text": "From THB 4.9M" },
+        { "name": "1 Bed", "beds": "1", "priceFrom": 5300000, "text": "From ~THB 5.3M" },
+        { "name": "2 Bed", "beds": "2", "priceFrom": 6600000, "text": "From ~THB 6.6M" },
+        { "name": "2 Bed+", "beds": "2+", "priceFrom": 7600000, "text": "From ~THB 7.6M" },
+        { "name": "3 Bed", "beds": "3", "priceFrom": 11400000, "text": "From ~THB 11.4M" },
+        { "name": "Penthouse", "beds": "2+", "priceFrom": 13100000, "text": "From ~THB 13.1M" }
+      ],
+      "buyerHook": {
+        "under-5m": "Studio is within reach at the entry price point.",
+        "default": "Studio to 3-bed options all sit inside your band. Ask for latest availability."
+      },
+      "investorHook": {
+        "under-5m": "Studio and 1-bed units give the lowest cash threshold and simplest management.",
+        "5m-20m": "1-bed to 2-bed mix works well. We can model co-invest splits and payment plans.",
+        "default": "Stacking 2-bed units at Bang Tao cash-flow rates; we can model co-invest splits."
+      }
+    },
+    {
+      "slug": "layan-lucky-villas",
+      "name": "Layan Lucky Villas",
+      "location": "Layan",
+      "priceFrom": 47600000,
+      "priceTo": 67800000,
+      "type": "villa",
+      "beds": "3–4",
+      "note": "Developer-direct · Phase II underway · Construction-linked payments · Smart home · Owner concierge",
+      "unitTypes": [
+        { "name": "4-Bed Villa", "beds": "4", "priceFrom": 47600000, "text": "From THB 47.6M" }
+      ],
+      "buyerHook": {
+        "under-5m": "Above your stated budget — ask about future Phases.",
+        "5m-20m": "Above your stated budget — ask about future Phases.",
+        "20m-100m": "4-bed sits in this band; ask for current Phase II placements.",
+        "default": "We can reserve a 4-bed villa and lock construction-linked payment terms."
+      },
+      "investorHook": {
+        "under-5m": "Above ticket for this project; revisit at higher allocation.",
+        "5m-20m": "Above ticket for this project; revisit at higher allocation.",
+        "20m-100m": "Above ticket for this project; revisit at higher allocation.",
+        "default": "Full villa ownership with concierge management is the play here."
+      }
+    }
+  ],
+  "investorScenarios": {
+    "under-5m": "Entry in Silhouette or The Zero Bang Tao — studio to 1-bed units fit this band. These projects give the lowest cash threshold and are managed in-house, so your net yield is closer to headline ROI. Ask us for current availability and payment plans.",
+    "5m-20m": "Up to two units in Silhouette or The Zero Bang Tao can sit inside this band. 1-bed to 2-bed mix works well: one unit funds debt service, the other can be pure equity upside. We can build a side-by-side scenario for the same developer, or mix across projects.",
+    "20m-100m": "Realistic options: block of 2–3 condos in The Zero Bang Tao, or a Coral or Breeze villa at Mutti Family Villas. Villas on individual land titles add an asset class differentiator. We can model gross yield, net yield after management fee, and projected resale uplift.",
+    "100m-plus": "Possible paths: multi-villa portfolio at Chalong, 4–6 condos across Nai Yang + Bang Tao, or reserved interest in upcoming phases. For tickets above this level we can structure co-investment terms."
+  }
+}
