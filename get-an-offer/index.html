@@ -154,16 +154,7 @@
                 <option value="exploring">Exploring</option>
               </select>
             </div>
-            <div>
-              <label for="offer_type">Offer type</label>
-              <select id="offer_type" name="offer_type">
-                <option value="">Select…</option>
-                <option value="purchase">Purchase</option>
-                <option value="off-plan">Off-plan reservation</option>
-                <option value="build">Build-to-spec</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+            <div></div>
           </div>
 
           <div class="form-row">
@@ -198,7 +189,7 @@
       const unitType = document.getElementById('unit_type');
       if(!project || !unitType) return;
 
-      const map = {
+      const fallbackMap = {
         'mutti-family-villas': [
           {value:'3-bed-villa', text:'3-bed villa'},
           {value:'4-bed-villa', text:'4-bed villa'},
@@ -230,9 +221,32 @@
         ]
       };
 
-      function setUnitOptions(){
+      let pricingCache = null;
+
+      async function loadPricing() {
+        if (pricingCache) return pricingCache;
+        try {
+          const res = await fetch('/pricing.json');
+          if (res.ok) pricingCache = await res.json();
+        } catch (e) {
+          console.warn('Failed to load pricing.json, using fallback', e);
+        }
+        return pricingCache;
+      }
+
+      async function setUnitOptions() {
         const key = project.value;
-        const opts = map[key] || [];
+        let opts = [];
+        const data = await loadPricing();
+        if (data && data[key] && data[key].units) {
+          opts = Object.entries(data[key].units).map(([value, unit]) => ({
+            value,
+            text: unit.label || value
+          }));
+        }
+        if (opts.length === 0) {
+          opts = fallbackMap[key] || [];
+        }
         unitType.innerHTML = '<option value="">Select…</option>' +
           opts.map(o => '<option value="'+o.value+'">'+o.text+'</option>').join('');
       }
@@ -262,16 +276,16 @@
           if (!res.ok) throw new Error('Server error ' + res.status);
 
           const blob = await res.blob();
-          const url = URL.createObjectURL(blob);
+          const dl = URL.createObjectURL(blob);
           const a = document.createElement('a');
-          a.href = url;
+          a.href = dl;
           const disposition = res.headers.get('Content-Disposition');
           const match = disposition && disposition.match(/filename="([^"]+)"/);
           a.download = match ? match[1] : 'Agentic-Quotation.pdf';
           document.body.appendChild(a);
           a.click();
           a.remove();
-          URL.revokeObjectURL(url);
+          URL.revokeObjectURL(dl);
 
           status.style.background = '#14302a';
           status.style.color = '#7ee3b8';
