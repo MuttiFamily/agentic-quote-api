@@ -48,7 +48,154 @@ function pathwayLabel(v) {
   }[v] || '—';
 }
 
+const PROJECTS = [
+  {
+    slug: 'mutti-family-villas',
+    name: 'Mutti Family Villas',
+    location: 'Chalong',
+    priceFrom: 19900000,
+    priceTo: 49800000,
+    type: 'villa',
+    beds: '3–6',
+    note: 'Developer-direct · 0% interest up to 24 months · Private pool · 8% advertised rental program',
+    unitTypes: [
+      { name: 'Pearl', beds: '3', priceFrom: 19900000, text: 'From THB 19.9M' },
+      { name: 'Coral', beds: '4–5', priceFrom: 24500000, text: 'From ~THB 24.5M' },
+      { name: 'Breeze', beds: '5', priceFrom: 34300000, text: 'From ~THB 34.3M' },
+      { name: 'Azure', beds: '6', priceFrom: 43425000, text: 'From THB 43.4M' }
+    ],
+    buyerHook: (budget) => {
+      if (budget === 'under-5m') return 'Below this project\'s entry price — see Silhouette or The Zero Bang Tao instead.';
+      if (budget === '5m-20m') return 'Best fit in this band is Pearl (3-bed) if available. Ask about current placement.';
+      return 'We can curate available units matching your bed/location preference.';
+    },
+    investorHook: (b) => {
+      if (b === 'under-5m' || b === '5m-20m') return 'Reservation of a Pearl or Coral unit, then rental-managed.';
+      return 'Multi-unit block ownership can boost net yield. We model scenarios by plot mix.';
+    }
+  },
+  {
+    slug: 'silhouette-naiyang',
+    name: 'Silhouette by The Zero',
+    location: 'Nai Yang',
+    priceFrom: 4300000,
+    priceTo: 18500000,
+    type: 'condo',
+    beds: 'Studio–2',
+    note: 'Developer-direct · 2026 Q4 · 10% guaranteed ROI* · In-house management · British-standard finishes',
+    unitTypes: [
+      { name: 'Studio', beds: 'Studio', priceFrom: 4300000, text: 'From THB 4.3M' },
+      { name: '1 Bed', beds: '1', priceFrom: 5200000, text: 'From THB 5.2M' },
+      { name: '2 Bed', beds: '2', priceFrom: 7700000, text: 'From THB 7.7M' }
+    ],
+    buyerHook: (budget) => {
+      return 'All listed unit types are within your budget band. We confirm current availability on request.';
+    },
+    investorHook: (b) => {
+      if (b === 'under-5m') return 'Studio entry is the cleanest cash-flow play at this band.';
+      if (b === '5m-20m') return 'Stackable 1-bed units work well for mid-term rental; we model net yield.';
+      return 'Two-unit or mixed-bed allocations are possible and improve diversification.';
+    }
+  },
+  {
+    slug: 'the-zero-bang-tao',
+    name: 'The Zero Bang Tao',
+    location: 'Bang Tao',
+    priceFrom: 4900000,
+    priceTo: 13100000,
+    type: 'condo',
+    beds: 'Studio–3',
+    note: 'Developer-direct · 2027 delivery · 11% advertised ROI with in-house management · 5% upfront discount',
+    unitTypes: [
+      { name: 'Studio', beds: 'Studio', priceFrom: 4900000, text: 'From THB 4.9M' },
+      { name: '1 Bed', beds: '1', priceFrom: 5300000, text: 'From ~THB 5.3M' },
+      { name: '2 Bed', beds: '2', priceFrom: 6600000, text: 'From ~THB 6.6M' },
+      { name: '2 Bed+', beds: '2+', priceFrom: 7600000, text: 'From ~THB 7.6M' },
+      { name: '3 Bed', beds: '3', priceFrom: 11400000, text: 'From ~THB 11.4M' },
+      { name: 'Penthouse', beds: '2+', priceFrom: 13100000, text: 'From ~THB 13.1M' }
+    ],
+    buyerHook: (budget) => {
+      if (budget === 'under-5m') return 'Studio is within reach at the entry price point.';
+      return 'Studio to 3-bed options all sit inside your band. Ask for latest availability.';
+    },
+    investorHook: (b) => {
+      if (b === 'under-5m' || b === '5m-20m') return 'Studio and 1-bed units give the lowest cash threshold and simplest management.';
+      return 'Stacking 2-bed units at Bang Tao cash-flow rates; we can model co-invest splits.';
+    }
+  },
+  {
+    slug: 'layan-lucky-villas',
+    name: 'Layan Lucky Villas',
+    location: 'Layan',
+    priceFrom: 47600000,
+    priceTo: 67800000,
+    type: 'villa',
+    beds: '3–4',
+    note: 'Developer-direct · Phase II underway · Construction-linked payments · Smart home · Owner concierge',
+    unitTypes: [
+      { name: '4-Bed Villa', beds: '4', priceFrom: 47600000, text: 'From THB 47.6M' }
+    ],
+    buyerHook: (budget) => {
+      if (budget === 'under-5m' || budget === '5m-20m') return 'Above your stated budget — ask about future Phases.';
+      if (budget === '20m-100m') return '4-bed sits in this band; ask for current Phase II placements.';
+      return 'We can reserve a 4-bed villa and lock construction-linked payment terms.';
+    },
+    investorHook: (b) => {
+      if (b === 'under-5m' || b === '5m-20m' || b === '20m-100m') return 'Above ticket for this Specific project; revisit at higher allocation.';
+      return 'Full villa ownership with concierge management is the play here.';
+    }
+  }
+];
+
+function budgetMin(v) {
+  return { 'under-5m':0, '5m-20m':5000000, '20m-100m':20000000, '100m-plus':100000000 }[v] || 0;
+}
+function budgetMax(v) {
+  return { 'under-5m':5000000, '5m-20m':20000000, '20m-100m':100000000, '100m-plus': Infinity }[v] || Infinity;
+}
+
+function matchedProjects(budget, intent, style) {
+  const lower = budgetMin(budget);
+  const upper = budgetMax(budget);
+  // filter by price band
+  let matches = PROJECTS.filter(p => p.priceFrom <= upper && p.priceTo >= lower);
+  // sort by closeness to lower bound
+  matches.sort((a, b) => a.priceFrom - b.priceFrom);
+  return matches.slice(0, 2);
+}
+
+function investorScenario(budget, intent, style) {
+  const lower = budgetMin(budget);
+  const upper = budgetMax(budget);
+  if (budget === 'under-5m') {
+    return 'Entry in Silhouette or The Zero Bang Tao — studio to 1-bed units fit this band. These projects give the lowest cash threshold and are managed in-house, so your net yield is closer to headline ROI. Ask us for current availability and payment plans.';
+  }
+  if (budget === '5m-20m') {
+    return 'Up to two units in Silhouette or The Zero Bang Tao can sit inside this band. 1-bed to 2-bed mix works well: one unit funds debt service, the other can be pure equity upside. We can build a side-by-side scenario for the same developer or mix across projects.';
+  }
+  if (budget === '20m-100m') {
+    return 'Realistic options: block of 2–3 condos in The Zero Bang Tao, or a Coral or Breeze villa at Mutti Family Villas. Villas on individual land titles add an asset class differentiator. We can model gross yield, net yield after management fee, and projected resale uplift.';
+  }
+  if (budget === '100m-plus') {
+    return 'Possible paths: multi-villa portfolio at Chalong, 4–6 condos across Nai Yang + Bang Tao, or reserved interest in upcoming phases. For tickets above this level we can structure co-investment terms.';
+  }
+  return 'Share your budget band and we’ll map exact project combinations.';
+}
+
 function emailTemplate(ref, data) {
+  const projects = matchedProjects(data.budget_range, data.intent, data.spending_style);
+  const scenarioText = (data.intent === 'buy-to-invest' || data.intent === 'partner-investor')
+    ? investorScenario(data.budget_range, data.intent, data.spending_style)
+    : null;
+
+  const projectsHtml = projects.map(p => `
+    <div style="background:#0f1419; border:1px solid #2a3344; border-radius:12px; padding:16px; margin-bottom:12px;">
+      <p style="margin:0 0 6px; font-weight:700; color:#e6e7ea; font-size:15px;">${p.name} · ${p.location}</p>
+      <p style="margin:0 0 6px; color:#b0b8c4; font-size:13px;">${p.beds} bed · ${p.note}</p>
+      <p style="margin:0; color:#c5a059; font-weight:700; font-size:14px;">From ${p.unitTypes[0].text.split(' ')[0]} THB ${p.unitTypes[0].priceFrom.toLocaleString('en-US')}</p>
+    </div>
+  `).join('');
+
   return `
     <div style="font-family: system-ui, sans-serif; background:#0f1419; color:#e6e7ea; padding:32px; border-radius:16px; max-width:640px; margin:0 auto;">
       <div style="text-align:center; margin-bottom:24px;">
@@ -67,6 +214,16 @@ function emailTemplate(ref, data) {
         <p style="margin:0 0 8px; color:#b0b8c4;">Readiness</p>
         <p style="margin:0;">${spendingStyleLabel(data.spending_style) || '—'}</p>
       </div>
+      ${projectsHtml ? `
+      <div style="background:#1a2130; border:1px solid #2a3344; border-radius:12px; padding:20px; margin-bottom:20px;">
+        <p style="margin:0 0 10px; color:#c5a059; font-weight:700; font-size:14px; letter-spacing:0.5px; text-transform:uppercase;">Available for your budget</p>
+        ${projectsHtml}
+      </div>` : ''}
+      ${scenarioText ? `
+      <div style="background:#1a2130; border:1px solid #2a3344; border-radius:12px; padding:20px; margin-bottom:20px;">
+        <p style="margin:0 0 8px; color:#c5a059; font-weight:700; font-size:14px; letter-spacing:0.5px; text-transform:uppercase;">What your budget can buy</p>
+        <p style="margin:0; color:#e6e7ea; line-height:1.6; font-size:14px;">${scenarioText}</p>
+      </div>` : ''}
       <p style="color:#b0b8c4; font-size:13px; text-align:center;">Questions? Reply to this email or WhatsApp +66 98 860 6410.</p>
     </div>
   `;
@@ -212,6 +369,7 @@ async function generateQuotePdf(ref, data) {
   const intent = data.intent || 'exploring';
   const style = data.spending_style || 'researching';
   const budget = data.budget_range || '';
+  const projects = matchedProjects(budget, intent, style);
 
   let pathwayLines = [];
   if (intent === 'buy-to-live') {
@@ -246,51 +404,47 @@ async function generateQuotePdf(ref, data) {
     y = drawBullet(text, marginX, y, font, black, 10);
   }
 
-  // Ideas for you
-  y -= 14;
-  page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
-  y -= 16;
-  y = drawText('Ideas for you', marginX, y, bold, black, 12);
-
-  let ideas = [];
-  if (intent === 'buy-to-live') {
-    ideas.push('Start with lifestyle-first shortlisting: beach, amenities, commute.');
-    ideas.push('We compare turnkey vs off-plan so you know real total cost.');
-    ideas.push('After-sales includes title transfer, utilities, and warranty coordination.');
-  } else if (intent === 'buy-to-invest') {
-    ideas.push('Prioritize projects with in-house management to protect net yield.');
-    ideas.push('Off-plan payment plans can preserve liquidity until handover.');
-    ideas.push('We model gross and net yield, plus resale drivers, before you commit.');
-    if (budget === 'under-5m') ideas.push('At this band, agent-network condos often outperform new builds on cash flow.');
-  } else if (intent === 'partner-investor') {
-    ideas.push('Start with a feasibility check — land, zoning, unit mix, hard cost.');
-    ideas.push('Fixed-price delivery removes contractor and material risk.');
-    ideas.push('Our 15-year track record is available for due-diligence review.');
-    if (budget === 'under-5m' || budget === '5m-20m') ideas.push('For mid-size tickets, co-investing structures can still give you equity upside.');
-  } else if (intent === 'exploring') {
-    ideas.push('Build new: 20–35% ROI, 18–36 months.');
-    ideas.push('Off-plan: 15–25% ROI, 12–24 months.');
-    ideas.push('Value-add: 15–30% ROI, 12–24 months.');
-    ideas.push('Build your business: 25–40% ROI, 24–48 months.');
-  } else {
-    ideas.push('Share more about your goal and we will map the right Agentic pathway.');
+  // Available for your budget
+  if (projects.length) {
+    y -= 14;
+    page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
+    y -= 18;
+    y = drawText('Available for your budget', marginX, y, bold, black, 12);
+    for (const p of projects) {
+      y -= 2;
+      const boxY = y + 14;
+      const boxH = 56 + p.unitTypes.length * 16;
+      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: boxH, color: rgb(250/255, 251/255, 252/255) });
+      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
+      y = drawText(`${p.name} · ${p.location}`, marginX + 8, y, bold, black, 11);
+      y = drawText(`${p.beds} bed · ${p.type} · ${p.note}`, marginX + 8, y, font, muted, 9, true);
+      for (const u of p.unitTypes.slice(0, 4)) {
+        y = drawText(`• ${u.name}: ${u.text}`, marginX + 16, y, font, black, 9);
+      }
+      if (p.unitTypes.length > 4) {
+        y = drawText(`• +${p.unitTypes.length - 4} more configurations`, marginX + 16, y, muted, 9);
+      }
+      y -= 4;
+    }
   }
 
-  const readinessIdea = style === 'ready'
-    ? 'Lock docs and payment plan first — we can move same week.'
-    : style === 'evaluating'
-    ? 'Request a side-by-side project comparison and a 48-hour shortlist.'
-    : 'Ask for our private advisory pack and quarterly market update.';
-  ideas.push(readinessIdea);
+  // What your budget can buy
+  const scenarioText = (intent === 'buy-to-invest' || intent === 'partner-investor')
+    ? investorScenario(budget, intent, style)
+    : null;
 
-  for (const text of ideas.slice(0, 6)) {
-    y = drawBullet(text, marginX, y, font, black, 10);
+  if (scenarioText) {
+    y -= 6;
+    page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
+    y -= 18;
+    y = drawText('What your budget can buy', marginX, y, bold, black, 12);
+    y = drawText(scenarioText, marginX, y, font, black, 10, true);
   }
 
   // By the numbers
   y -= 14;
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
-  y -= 16;
+  y -= 18;
   y = drawText('By the numbers', marginX, y, bold, black, 12);
   y -= 4;
 
@@ -307,17 +461,13 @@ async function generateQuotePdf(ref, data) {
   for (let i = 0; i < byNumbers.length; i++) {
     const item = byNumbers[i];
     const x = i < 2 ? col1X : col2X;
-    const rowY = i % 2 === 0 ? colY : colY;
-    if (i === 2) colY = y;
     const rowBase = i % 2 === 0 ? colY : colY - 28;
-    const rx = x;
     const ry = rowBase;
-    // draw mini card background
-    page.drawRectangle({ x: rx - 6, y: ry - 40, width: (width - marginX * 2) / 2 - 12, height: 52, color: rgb(250/255, 251/255, 252/255) });
-    page.drawRectangle({ x: rx - 6, y: ry - 40, width: (width - marginX * 2) / 2 - 12, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
-    page.drawText(item.label, { x: rx, y: ry - 12, size: 10, font: bold, color: black });
-    page.drawText(item.value, { x: rx, y: ry - 24, size: 10, font: bold, color: gold });
-    page.drawText(item.sub, { x: rx, y: ry - 34, size: 9, font, color: muted });
+    page.drawRectangle({ x: x - 6, y: ry - 40, width: (width - marginX * 2) / 2 - 12, height: 52, color: rgb(250/255, 251/255, 252/255) });
+    page.drawRectangle({ x: x - 6, y: ry - 40, width: (width - marginX * 2) / 2 - 12, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
+    page.drawText(item.label, { x, y: ry - 12, size: 10, font: bold, color: black });
+    page.drawText(item.value, { x, y: ry - 24, size: 10, font: bold, color: gold });
+    page.drawText(item.sub, { x, y: ry - 34, size: 9, font, color: muted });
 
     if (i % 2 === 1) colY -= 56;
   }
