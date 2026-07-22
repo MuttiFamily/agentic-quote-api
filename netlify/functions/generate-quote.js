@@ -242,33 +242,8 @@ async function generateQuotePdf(ref, data) {
   const budget = data.budget_range || '';
   const projects = matchedProjects(budget);
 
-  // Available for your budget
-  if (projects.length) {
-    y -= 14;
-    page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
-    y -= 18;
-    y = drawText('Available for your budget', marginX, y, bold, black, 12);
-    for (const p of projects) {
-      y -= 2;
-      const boxY = y + 14;
-      const boxH = 56 + p.unitTypes.length * 16;
-      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: boxH, color: rgb(250/255, 251/255, 252/255) });
-      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
-      y = drawText(`${p.name} · ${p.location}`, marginX + 8, y, bold, black, 11);
-      y = drawText(`${p.beds} bed · ${p.type} · ${p.note}`, marginX + 8, y, font, muted, 9, true);
-      for (const u of p.unitTypes.slice(0, 4)) {
-        y = drawText(`• ${u.name}: ${u.text}`, marginX + 16, y, font, black, 9);
-      }
-      if (p.unitTypes.length > 4) {
-        y = drawText(`• +${p.unitTypes.length - 4} more configurations`, marginX + 16, y, font, muted, 9);
-      }
-      y -= 4;
-    }
-  }
-
   // Your options
-  if (intent === 'buy-to-live' || intent === 'buy-to-invest') {
-    if (projects.length) {
+  if ((intent === 'buy-to-live' || intent === 'buy-to-invest' || intent === 'partner-investor') && projects.length) {
       y -= 14;
       page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
       y -= 18;
@@ -310,7 +285,6 @@ async function generateQuotePdf(ref, data) {
         page.drawRectangle({ x: tableX, y: y, width: rowW, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
       }
       y -= 6;
-    }
   }
 
   // What we can help with

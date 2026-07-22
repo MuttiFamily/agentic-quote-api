@@ -242,75 +242,49 @@ async function generateQuotePdf(ref, data) {
   const budget = data.budget_range || '';
   const projects = matchedProjects(budget);
 
-  // Available for your budget
-  if (projects.length) {
+  // Your options
+  if ((intent === 'buy-to-live' || intent === 'buy-to-invest' || intent === 'partner-investor') && projects.length) {
     y -= 14;
     page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
     y -= 18;
-    y = drawText('Available for your budget', marginX, y, bold, black, 12);
+    y = drawText('Your options', marginX, y, bold, black, 12);
+
+    const tableX = marginX + 4;
+    const rowW = width - marginX * 2 - 8;
+    const colW = [rowW * 0.24, rowW * 0.16, rowW * 0.10, rowW * 0.18, rowW * 0.32];
+    let cx = tableX;
+    const colXs = [];
+    for (const w of colW) { colXs.push(cx); cx += w; }
+    const headerH = 20;
+
+    page.drawText('Developer', { x: colXs[0] + 2, y: y - 13, size: 9, font: bold, color: black });
+    page.drawText('District', { x: colXs[1] + 2, y: y - 13, size: 9, font: bold, color: black });
+    page.drawText('Size', { x: colXs[2] + 2, y: y - 13, size: 9, font: bold, color: black });
+    page.drawText('Price', { x: colXs[3] + 2, y: y - 13, size: 9, font: bold, color: black });
+    page.drawText('Agentic comment', { x: colXs[4] + 2, y: y - 13, size: 9, font: bold, color: black });
+    y -= headerH;
+    page.drawRectangle({ x: tableX, y: y, width: rowW, height: 1.2, color: rgb(200/255, 200/255, 200/255) });
+
     for (const p of projects) {
-      y -= 2;
-      const boxY = y + 14;
-      const boxH = 56 + p.unitTypes.length * 16;
-      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: boxH, color: rgb(250/255, 251/255, 252/255) });
-      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
-      y = drawText(`${p.name} · ${p.location}`, marginX + 8, y, bold, black, 11);
-      y = drawText(`${p.beds} bed · ${p.type} · ${p.note}`, marginX + 8, y, font, muted, 9, true);
-      for (const u of p.unitTypes.slice(0, 4)) {
-        y = drawText(`• ${u.name}: ${u.text}`, marginX + 16, y, font, black, 9);
+      const comment = (p.buyerHook && p.buyerHook[budget]) || (p.buyerHook && p.buyerHook['default']) || p.note;
+      const rows = [
+        { text: p.name, bold: true },
+        { text: p.location, bold: false },
+        { text: p.beds + ' bed', bold: false },
+        { text: p.unitTypes[0].text, bold: false },
+      ];
+      for (let i = 0; i < rows.length; i++) {
+        page.drawText(rows[i].text, { x: colXs[i] + 2, y: y - 12, size: 8, font: rows[i].bold ? bold : font, color: black });
       }
-      if (p.unitTypes.length > 4) {
-        y = drawText(`• +${p.unitTypes.length - 4} more configurations`, marginX + 16, y, font, muted, 9);
+      const wrapped = wrapText(comment, font, 8, colW[4] - 6);
+      for (let li = 0; li < wrapped.length; li++) {
+        page.drawText(wrapped[li], { x: colXs[4] + 2, y: y - 12 - li * 10, size: 8, font, color: black });
       }
-      y -= 4;
+      const rowH = Math.max(22, wrapped.length * 10 + 6);
+      y -= rowH;
+      page.drawRectangle({ x: tableX, y: y, width: rowW, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
     }
-  }
-
-  // Your options
-  if (intent === 'buy-to-live' || intent === 'buy-to-invest') {
-    if (projects.length) {
-      y -= 14;
-      page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
-      y -= 18;
-      y = drawText('Your options', marginX, y, bold, black, 12);
-
-      const tableX = marginX + 4;
-      const rowW = width - marginX * 2 - 8;
-      const colW = [rowW * 0.24, rowW * 0.16, rowW * 0.10, rowW * 0.18, rowW * 0.32];
-      let cx = tableX;
-      const colXs = [];
-      for (const w of colW) { colXs.push(cx); cx += w; }
-      const headerH = 20;
-
-      page.drawText('Developer', { x: colXs[0] + 2, y: y - 13, size: 9, font: bold, color: black });
-      page.drawText('District', { x: colXs[1] + 2, y: y - 13, size: 9, font: bold, color: black });
-      page.drawText('Size', { x: colXs[2] + 2, y: y - 13, size: 9, font: bold, color: black });
-      page.drawText('Price', { x: colXs[3] + 2, y: y - 13, size: 9, font: bold, color: black });
-      page.drawText('Agentic comment', { x: colXs[4] + 2, y: y - 13, size: 9, font: bold, color: black });
-      y -= headerH;
-      page.drawRectangle({ x: tableX, y: y, width: rowW, height: 1.2, color: rgb(200/255, 200/255, 200/255) });
-
-      for (const p of projects) {
-        const comment = (p.buyerHook && p.buyerHook[budget]) || (p.buyerHook && p.buyerHook['default']) || p.note;
-        const rows = [
-          { text: p.name, bold: true },
-          { text: p.location, bold: false },
-          { text: p.beds + ' bed', bold: false },
-          { text: p.unitTypes[0].text, bold: false },
-        ];
-        for (let i = 0; i < rows.length; i++) {
-          page.drawText(rows[i].text, { x: colXs[i] + 2, y: y - 12, size: 8, font: rows[i].bold ? bold : font, color: black });
-        }
-        const wrapped = wrapText(comment, font, 8, colW[4] - 6);
-        for (let li = 0; li < wrapped.length; li++) {
-          page.drawText(wrapped[li], { x: colXs[4] + 2, y: y - 12 - li * 10, size: 8, font, color: black });
-        }
-        const rowH = Math.max(22, wrapped.length * 10 + 6);
-        y -= rowH;
-        page.drawRectangle({ x: tableX, y: y, width: rowW, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
-      }
-      y -= 6;
-    }
+    y -= 6;
   }
 
   // What we can help with
