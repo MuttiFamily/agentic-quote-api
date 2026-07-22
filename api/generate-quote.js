@@ -237,6 +237,11 @@ async function generateQuotePdf(ref, data) {
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
   y -= 18;
 
+  const intent = data.intent || 'exploring';
+  const style = data.spending_style || 'researching';
+  const budget = data.budget_range || '';
+  const projects = matchedProjects(budget);
+
   // Available for your budget
   if (projects.length) {
     y -= 14;
@@ -261,10 +266,88 @@ async function generateQuotePdf(ref, data) {
     }
   }
 
-  const intent = data.intent || 'exploring';
-  const style = data.spending_style || 'researching';
-  const budget = data.budget_range || '';
-  const projects = matchedProjects(budget);
+  // Your options
+  if (intent === 'buy-to-live' || intent === 'buy-to-invest') {
+    if (projects.length) {
+      y -= 14;
+      page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
+      y -= 18;
+      y = drawText('Your options', marginX, y, bold, black, 12);
+
+      const tableX = marginX + 4;
+      const rowW = width - marginX * 2 - 8;
+      const colW = [rowW * 0.24, rowW * 0.16, rowW * 0.10, rowW * 0.18, rowW * 0.32];
+      let cx = tableX;
+      const colXs = [];
+      for (const w of colW) { colXs.push(cx); cx += w; }
+      const headerH = 20;
+
+      page.drawText('Developer', { x: colXs[0] + 2, y: y - 13, size: 9, font: bold, color: black });
+      page.drawText('District', { x: colXs[1] + 2, y: y - 13, size: 9, font: bold, color: black });
+      page.drawText('Size', { x: colXs[2] + 2, y: y - 13, size: 9, font: bold, color: black });
+      page.drawText('Price', { x: colXs[3] + 2, y: y - 13, size: 9, font: bold, color: black });
+      page.drawText('Agentic comment', { x: colXs[4] + 2, y: y - 13, size: 9, font: bold, color: black });
+      y -= headerH;
+      page.drawRectangle({ x: tableX, y: y, width: rowW, height: 1.2, color: rgb(200/255, 200/255, 200/255) });
+
+      for (const p of projects) {
+        const comment = (p.buyerHook && p.buyerHook[budget]) || (p.buyerHook && p.buyerHook['default']) || p.note;
+        const rows = [
+          { text: p.name, bold: true },
+          { text: p.location, bold: false },
+          { text: p.beds + ' bed', bold: false },
+          { text: p.unitTypes[0].text, bold: false },
+        ];
+        for (let i = 0; i < rows.length; i++) {
+          page.drawText(rows[i].text, { x: colXs[i] + 2, y: y - 12, size: 8, font: rows[i].bold ? bold : font, color: black });
+        }
+        const wrapped = wrapText(comment, font, 8, colW[4] - 6);
+        for (let li = 0; li < wrapped.length; li++) {
+          page.drawText(wrapped[li], { x: colXs[4] + 2, y: y - 12 - li * 10, size: 8, font, color: black });
+        }
+        const rowH = Math.max(22, wrapped.length * 10 + 6);
+        y -= rowH;
+        page.drawRectangle({ x: tableX, y: y, width: rowW, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
+      }
+      y -= 6;
+    }
+  }
+
+  // What we can help with
+  y -= 10;
+  page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
+  y -= 18;
+  if (intent === 'buy-to-live' || intent === 'buy-to-invest') {
+    y = drawText('How we help beyond the purchase', marginX, y, bold, black, 12);
+    y -= 4;
+    const helpItems = [
+      'Cross-border capital – we guide legal money transfers into Thailand for your purchase.',
+      'Ownership structures – freehold, leasehold, and Thai-company setups explained simply.',
+      'Other options – we can design and build your dream villa, or renovate a resale, all fixed-price.'
+    ];
+    for (const item of helpItems) {
+      y = drawBullet(item, marginX, y, font, black, 10);
+      y -= 2;
+    }
+  } else if (intent === 'partner-investor') {
+    y = drawText('What we can build together', marginX, y, bold, black, 12);
+    y -= 4;
+    const investorItems = [
+      'Become a developer – feasibility, design, permits, fixed-price delivery. You own the asset.',
+      'Off-plan, your finishings – buy off-plan, customize kitchen, bathroom, flooring with our in-house team.',
+      'Buy, renovate, sell/rent/live – buy resale at a discount, renovate for uplift, then exit or occupy.',
+      'Build your business – from concept and permits to delivery and first guests. Hospitality, retail, serviced brand.'
+    ];
+    for (const item of investorItems) {
+      y = drawBullet(item, marginX, y, font, black, 10);
+      y -= 2;
+    }
+  } else {
+    y = drawText('How we can help', marginX, y, bold, black, 12);
+    y -= 4;
+    y = drawBullet('From shortlisting to handover – tell us more and we will map the right pathway.', marginX, y, font, black, 10);
+  }
+
 
   // What your budget can buy
   const scenarioText = (intent === 'buy-to-invest' || intent === 'partner-investor')
