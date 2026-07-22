@@ -223,6 +223,30 @@ async function generateQuotePdf(ref, data) {
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
   y -= 18;
 
+  // Available for your budget
+  if (projects.length) {
+    y -= 14;
+    page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
+    y -= 18;
+    y = drawText('Available for your budget', marginX, y, bold, black, 12);
+    for (const p of projects) {
+      y -= 2;
+      const boxY = y + 14;
+      const boxH = 56 + p.unitTypes.length * 16;
+      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: boxH, color: rgb(250/255, 251/255, 252/255) });
+      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
+      y = drawText(`${p.name} · ${p.location}`, marginX + 8, y, bold, black, 11);
+      y = drawText(`${p.beds} bed · ${p.type} · ${p.note}`, marginX + 8, y, font, muted, 9, true);
+      for (const u of p.unitTypes.slice(0, 4)) {
+        y = drawText(`• ${u.name}: ${u.text}`, marginX + 16, y, font, black, 9);
+      }
+      if (p.unitTypes.length > 4) {
+        y = drawText(`• +${p.unitTypes.length - 4} more configurations`, marginX + 16, y, font, muted, 9);
+      }
+      y -= 4;
+    }
+  }
+
   // Your profile
   y = drawText('Your profile', marginX, y, bold, black, 12);
   const profileRows = [
@@ -244,6 +268,11 @@ async function generateQuotePdf(ref, data) {
     y = drawText(data.message, marginX, y, font, muted, 10, true);
   }
 
+  const intent = data.intent || 'exploring';
+  const style = data.spending_style || 'researching';
+  const budget = data.budget_range || '';
+  const projects = matchedProjects(budget);
+
   // Recommended pathway
   y -= 18;
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
@@ -251,11 +280,6 @@ async function generateQuotePdf(ref, data) {
   y = drawText('Recommended pathway', marginX, y, bold, black, 12);
   y = drawText(pathwayLabel(data.intent), marginX, y, font, black, 11, true);
   y -= 6;
-
-  const intent = data.intent || 'exploring';
-  const style = data.spending_style || 'researching';
-  const budget = data.budget_range || '';
-  const projects = matchedProjects(budget);
 
   let pathwayLines = [];
   if (intent === 'buy-to-live') {
@@ -290,29 +314,6 @@ async function generateQuotePdf(ref, data) {
     y = drawBullet(text, marginX, y, font, black, 10);
   }
 
-  // Available for your budget
-  if (projects.length) {
-    y -= 14;
-    page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
-    y -= 18;
-    y = drawText('Available for your budget', marginX, y, bold, black, 12);
-    for (const p of projects) {
-      y -= 2;
-      const boxY = y + 14;
-      const boxH = 56 + p.unitTypes.length * 16;
-      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: boxH, color: rgb(250/255, 251/255, 252/255) });
-      page.drawRectangle({ x: marginX, y: boxY - boxH, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
-      y = drawText(`${p.name} · ${p.location}`, marginX + 8, y, bold, black, 11);
-      y = drawText(`${p.beds} bed · ${p.type} · ${p.note}`, marginX + 8, y, font, muted, 9, true);
-      for (const u of p.unitTypes.slice(0, 4)) {
-        y = drawText(`• ${u.name}: ${u.text}`, marginX + 16, y, font, black, 9);
-      }
-      if (p.unitTypes.length > 4) {
-        y = drawText(`• +${p.unitTypes.length - 4} more configurations`, marginX + 16, y, font, muted, 9);
-      }
-      y -= 4;
-    }
-  }
 
   // What your budget can buy
   const scenarioText = (intent === 'buy-to-invest' || intent === 'partner-investor')
