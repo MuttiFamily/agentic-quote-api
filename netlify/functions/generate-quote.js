@@ -213,12 +213,26 @@ async function generateQuotePdf(ref, data) {
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
   y -= 18;
 
-  y = drawText('Prepared for', marginX, y, bold, black, 12);
-  y = drawText(`${data.name || 'Valued Client'}`, marginX, y, font, black, 11);
-  if (data.email) y = drawText(data.email, marginX, y, font, muted, 10);
-  if (data.phone) y = drawText(data.phone, marginX, y, font, muted, 10);
-  if (data.country) y = drawText(data.country, marginX, y, font, muted, 10);
-  y -= 6;
+  const halfWidth = (width - marginX * 2) / 2;
+  const rightXCol = marginX + halfWidth + 12;
+  const baseY = y;
+  let leftY = drawText('Prepared for', marginX, y, bold, black, 12);
+  let rightY = drawText('Your profile', rightXCol, y, bold, black, 12);
+  leftY -= 2;
+  rightY -= 2;
+  leftY = drawText(`${data.name || 'Valued Client'}`, marginX, leftY, font, black, 11);
+  if (data.email) leftY = drawText(data.email, marginX, leftY, font, muted, 10);
+  if (data.phone) leftY = drawText(data.phone, marginX, leftY, font, muted, 10);
+  if (data.country) leftY = drawText(data.country, marginX, leftY, font, muted, 10);
+  rightY = drawText('Budget range:', rightXCol, rightY, bold, muted, 10);
+  rightY = drawText(budgetLabel(data.budget_range), rightXCol + 110, rightY - 10, font, black, 10, true);
+  rightY = drawText('Timeline:', rightXCol, rightY, bold, muted, 10);
+  rightY = drawText(timelineLabel(data.timeline), rightXCol + 110, rightY - 10, font, black, 10, true);
+  rightY = drawText('Primary intent:', rightXCol, rightY, bold, muted, 10);
+  rightY = drawText(intentLabel(data.intent), rightXCol + 110, rightY - 10, font, black, 10, true);
+  rightY = drawText('Readiness:', rightXCol, rightY, bold, muted, 10);
+  rightY = drawText(spendingStyleLabel(data.spending_style), rightXCol + 110, rightY - 10, font, black, 10, true);
+  y = Math.max(leftY, rightY) - 6;
 
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
   y -= 18;
@@ -247,73 +261,10 @@ async function generateQuotePdf(ref, data) {
     }
   }
 
-  // Your profile
-  y = drawText('Your profile', marginX, y, bold, black, 12);
-  const profileRows = [
-    { label: 'Budget range', value: budgetLabel(data.budget_range) },
-    { label: 'Timeline', value: timelineLabel(data.timeline) },
-    { label: 'Primary intent', value: intentLabel(data.intent) },
-    { label: 'Readiness', value: spendingStyleLabel(data.spending_style) }
-  ];
-  for (const l of profileRows) {
-    y = drawText(l.label + ':', marginX, y, bold, muted, 10);
-    y = drawText(l.value, marginX + 110, y - 10, font, black, 10, true);
-  }
-
-  if (data.message) {
-    y -= 10;
-    page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
-    y -= 18;
-    y = drawText('Your notes', marginX, y, bold, black, 12);
-    y = drawText(data.message, marginX, y, font, muted, 10, true);
-  }
-
   const intent = data.intent || 'exploring';
   const style = data.spending_style || 'researching';
   const budget = data.budget_range || '';
   const projects = matchedProjects(budget);
-
-  // Recommended pathway
-  y -= 18;
-  page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
-  y -= 18;
-  y = drawText('Recommended pathway', marginX, y, bold, black, 12);
-  y = drawText(pathwayLabel(data.intent), marginX, y, font, black, 11, true);
-  y -= 6;
-
-  let pathwayLines = [];
-  if (intent === 'buy-to-live') {
-    pathwayLines.push('We shortlist projects that match your lifestyle, location preference, and budget.');
-    pathwayLines.push('You get direct viewings with our in-house team and transparent pricing — no agent markup.');
-    pathwayLines.push('After handover, we handle title transfer, utilities setup, and after-sales support.');
-  } else if (intent === 'buy-to-invest') {
-    pathwayLines.push('We present units and projects with clear rental yield and resale drivers.');
-    pathwayLines.push('We can align you with property-management options so your asset is rent-ready from day one.');
-    if (budget === 'under-5m') pathwayLines.push('Note: at this budget, best-fit options are typically agent-network condos; we can curate shortlist on request.');
-  } else if (intent === 'partner-investor') {
-    pathwayLines.push('Developer partnerships at Agentic usually require a 5M THB+ starting ticket.');
-    if (budget && budget !== '100m-plus' && budget !== '20m-100m') {
-      pathwayLines.push('With your stated band, the most realistic pathway is an off-plan reservation with an extended payment plan, or co-investing through an agent-curated scheme.');
-    }
-    pathwayLines.push('For larger tickets, we introduce you to deal flow, feasibility checks, and our construction track record.');
-  } else if (intent === 'exploring') {
-    pathwayLines.push('We map your situation across four pathways: direct purchase, off-plan, value-add, and development partnership.');
-    pathwayLines.push('You get a clear comparison sheet with timelines, risk, and indicative ranges.');
-  } else {
-    pathwayLines.push('Tell us more in your notes so we can match you to the right Agentic pathway.');
-  }
-
-  const styleLine = style === 'ready'
-    ? 'You’re ready to move: we prioritize docs, payment-plan lock, and a same-week proposal.'
-    : style === 'evaluating'
-    ? 'You’re comparing options: we provide side-by-side project comparisons and a shortlist within 48 hours.'
-    : 'You’re in research mode: we send a private advisory pack and stay in touch quarterly.';
-  pathwayLines.push(styleLine);
-
-  for (const text of pathwayLines) {
-    y = drawBullet(text, marginX, y, font, black, 10);
-  }
-
 
   // What your budget can buy
   const scenarioText = (intent === 'buy-to-invest' || intent === 'partner-investor')
