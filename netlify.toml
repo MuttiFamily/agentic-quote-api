@@ -1,0 +1,11 @@
+[build]
+  publish = "."
+  command = "echo 'static site'"
+
+[context.production]
+  [context.production.environment]
+    NODE_ENV = "production"
+
+[forms]
+  [forms.leadForm]
+    name = "leadForm"
