@@ -198,7 +198,6 @@ async function generateQuotePdf(ref, data) {
   }
 
   y = logoY - 16;
-  y = drawText('AGENTIC', marginX, y, bold, gold, 16);
   y = drawText('ADVISORY OVERVIEW', marginX, y, bold, black, 18);
   y -= 8;
 
@@ -224,14 +223,17 @@ async function generateQuotePdf(ref, data) {
   if (data.email) leftY = drawText(data.email, marginX, leftY, font, muted, 10);
   if (data.phone) leftY = drawText(data.phone, marginX, leftY, font, muted, 10);
   if (data.country) leftY = drawText(data.country, marginX, leftY, font, muted, 10);
-  rightY = drawText('Budget range:', rightXCol, rightY, bold, muted, 10);
-  rightY = drawText(budgetLabel(data.budget_range), rightXCol + 110, rightY - 10, font, black, 10, true);
-  rightY = drawText('Timeline:', rightXCol, rightY, bold, muted, 10);
-  rightY = drawText(timelineLabel(data.timeline), rightXCol + 110, rightY - 10, font, black, 10, true);
-  rightY = drawText('Primary intent:', rightXCol, rightY, bold, muted, 10);
-  rightY = drawText(intentLabel(data.intent), rightXCol + 110, rightY - 10, font, black, 10, true);
-  rightY = drawText('Readiness:', rightXCol, rightY, bold, muted, 10);
-  rightY = drawText(spendingStyleLabel(data.spending_style), rightXCol + 110, rightY - 10, font, black, 10, true);
+  const labelSize = 10;
+  const valueOffset = 100;
+  const drawRow = (lbl, val, py) => {
+    drawText(lbl, rightXCol, py, bold, muted, labelSize);
+    drawText(val, rightXCol + valueOffset, py, font, black, labelSize, true);
+    return py - labelSize * 1.3;
+  };
+  rightY = drawRow('Budget range:', budgetLabel(data.budget_range), rightY);
+  rightY = drawRow('Timeline:', timelineLabel(data.timeline), rightY);
+  rightY = drawRow('Primary intent:', intentLabel(data.intent), rightY);
+  rightY = drawRow('Readiness:', spendingStyleLabel(data.spending_style), rightY);
   y = Math.max(leftY, rightY) - 6;
 
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
