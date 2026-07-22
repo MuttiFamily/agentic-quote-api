@@ -237,6 +237,18 @@ async function generateQuotePdf(ref, data) {
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
   y -= 18;
 
+  // Your priorities
+  if (data.message) {
+    const priorityText = data.message.length > 120 ? data.message.slice(0, 120) + '…' : data.message;
+    y -= 8;
+    const boxH = 32;
+    page.drawRectangle({ x: marginX, y: y - boxH, width: width - marginX * 2, height: boxH, color: rgb(250/255, 251/255, 252/255) });
+    page.drawRectangle({ x: marginX, y: y - boxH, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
+    y = drawText('Your priorities', marginX + 6, y - 10, bold, muted, 10);
+    y = drawText(priorityText, marginX + 6, y - 2, font, black, 10, true);
+    y -= 6;
+  }
+
   const intent = data.intent || 'exploring';
   const style = data.spending_style || 'researching';
   const budget = data.budget_range || '';
@@ -266,7 +278,9 @@ async function generateQuotePdf(ref, data) {
     page.drawRectangle({ x: tableX, y: y, width: rowW, height: 1.2, color: rgb(200/255, 200/255, 200/255) });
 
     for (const p of projects) {
-      const comment = (p.buyerHook && p.buyerHook[budget]) || (p.buyerHook && p.buyerHook['default']) || p.note;
+      const isInvestor = intent === 'partner-investor';
+      const hook = isInvestor ? p.investorHook : p.buyerHook;
+      const comment = (hook && hook[budget]) || (hook && hook['default']) || p.note;
       const rows = [
         { text: p.name, bold: true },
         { text: p.location, bold: false },
@@ -323,21 +337,32 @@ async function generateQuotePdf(ref, data) {
   }
 
 
-  // What your budget can buy
-  const scenarioText = (intent === 'buy-to-invest' || intent === 'partner-investor')
-    ? investorScenario(budget)
-    : null;
-
-  if (scenarioText) {
-    y -= 6;
-    page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
-    y -= 18;
-    y = drawText('What your budget can buy', marginX, y, bold, black, 12);
-    y = drawText(scenarioText, marginX, y, font, black, 10, true);
+  // For partner-investor: show budget scenario first
+  if (intent === 'partner-investor') {
+    const scenarioText = investorScenario(budget);
+    if (scenarioText) {
+      y -= 6;
+      page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
+      y -= 18;
+      y = drawText('What your budget can buy', marginX, y, bold, black, 12);
+      y = drawText(scenarioText, marginX, y, font, black, 10, true);
+    }
   }
 
-  // By the numbers
-  // Next step
+  // For buy-to-invest: budget scenario after services
+  if (intent === 'buy-to-invest') {
+    const scenarioText = investorScenario(budget);
+    if (scenarioText) {
+      y -= 6;
+      page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
+      y -= 18;
+      y = drawText('What your budget can buy', marginX, y, bold, black, 12);
+      y = drawText(scenarioText, marginX, y, font, black, 10, true);
+    }
+  }
+
+  y -= 8;
+  y = drawText('Agentic clients closed THB 380M+ in Phuket transactions since 2024.', marginX, y, font, muted, 9);
   y -= 10;
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
   y -= 18;
