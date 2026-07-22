@@ -337,38 +337,6 @@ async function generateQuotePdf(ref, data) {
   }
 
   // By the numbers
-  y -= 14;
-  page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
-  y -= 18;
-  y = drawText('By the numbers', marginX, y, bold, black, 12);
-  y -= 4;
-
-  const byNumbers = [
-    { label: 'Build new', value: '20–35% ROI', sub: '18–36 months · Medium–High risk' },
-    { label: 'Off-plan', value: '15–25% ROI', sub: '12–24 months · Medium–High risk' },
-    { label: 'Value-add', value: '15–30% ROI', sub: '12–24 months · Medium–High risk' },
-    { label: 'Build your business', value: '25–40% ROI', sub: '24–48 months · High risk' }
-  ];
-
-  const col1X = marginX;
-  const col2X = marginX + (width - marginX * 2) / 2 + 12;
-  let colY = y;
-  for (let i = 0; i < byNumbers.length; i++) {
-    const item = byNumbers[i];
-    const x = i < 2 ? col1X : col2X;
-    const rowBase = i % 2 === 0 ? colY : colY - 28;
-    const ry = rowBase;
-    page.drawRectangle({ x: x - 6, y: ry - 40, width: (width - marginX * 2) / 2 - 12, height: 52, color: rgb(250/255, 251/255, 252/255) });
-    page.drawRectangle({ x: x - 6, y: ry - 40, width: (width - marginX * 2) / 2 - 12, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
-    page.drawText(item.label, { x, y: ry - 12, size: 10, font: bold, color: black });
-    page.drawText(item.value, { x, y: ry - 24, size: 10, font: bold, color: gold });
-    page.drawText(item.sub, { x, y: ry - 34, size: 9, font, color: muted });
-
-    if (i % 2 === 1) colY -= 56;
-  }
-
-  y = colY - 18;
-
   // Next step
   y -= 10;
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
