@@ -100,6 +100,9 @@ function emailTemplate(ref, data) {
         <p style="margin:0 0 16px;">${intentLabel(data.intent) || '—'}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Readiness</p>
         <p style="margin:0;">${spendingStyleLabel(data.spending_style) || '—'}</p>
+        ${data.message ? `
+        <p style="margin:14px 0 0; color:#b0b8c4;">Notes</p>
+        <p style="margin:4px 0 0; color:#e6e7ea; line-height:1.5;">${data.message.length > 400 ? data.message.slice(0, 400) + '…' : data.message}</p>` : ''}
       </div>
       ${projectsHtml ? `
       <div style="background:#1a2130; border:1px solid #2a3344; border-radius:12px; padding:20px; margin-bottom:20px;">
@@ -235,22 +238,14 @@ async function generateQuotePdf(ref, data) {
   rightY = drawRow('Preferred location:', locationLabel(data.preferred_location), rightY);
   rightY = drawRow('Primary intent:', intentLabel(data.intent), rightY);
   rightY = drawRow('Readiness:', spendingStyleLabel(data.spending_style), rightY);
+  if (data.message) {
+    const note = data.message.length > 180 ? data.message.slice(0, 180) + '…' : data.message;
+    rightY = drawRow('Notes:', note, rightY);
+  }
   y = Math.max(leftY, rightY) - 6;
 
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
   y -= 18;
-
-  // Your priorities
-  if (data.message) {
-    const priorityText = data.message.length > 120 ? data.message.slice(0, 120) + '…' : data.message;
-    y -= 8;
-    const boxH = 32;
-    page.drawRectangle({ x: marginX, y: y - boxH, width: width - marginX * 2, height: boxH, color: rgb(250/255, 251/255, 252/255) });
-    page.drawRectangle({ x: marginX, y: y - boxH, width: width - marginX * 2, height: 1.2, color: rgb(230/255, 230/255, 230/255) });
-    y = drawText('Your priorities', marginX + 6, y - 10, bold, muted, 10);
-    y = drawText(priorityText, marginX + 6, y - 2, font, black, 10, true);
-    y -= 6;
-  }
 
   const intent = data.intent || 'exploring';
   const style = data.spending_style || 'researching';
@@ -337,6 +332,14 @@ async function generateQuotePdf(ref, data) {
     y = drawText('How we can help', marginX, y, bold, black, 12);
     y -= 4;
     y = drawBullet('From shortlisting to handover – tell us more and we will map the right pathway.', marginX, y, font, black, 10);
+  }
+
+  if (data.message) {
+    y -= 8;
+    const note = data.message.length > 140 ? data.message.slice(0, 140) + '…' : data.message;
+    y = drawText(`You mentioned: ${note}`, marginX, y, font, black, 10, true);
+    y = drawText("We'll build this into your shortlist and next conversation.", marginX, y - 2, font, muted, 9, true);
+    y -= 6;
   }
 
 
