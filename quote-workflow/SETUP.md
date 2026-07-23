@@ -11,7 +11,7 @@ Separate advisory pipeline from Facebook leads. Auto-generate a branded advisory
 ### 1. Create Google Sheet
 - Name: `Agentic Quotes`
 - Make a header row with these columns:
-  timestamp | name | email | phone | country | intent | budget_range | timeline | spending_style | message | quote_doc_id | quote_doc_url | status
+  timestamp | name | email | phone | country | intent | budget_range | preferred_location | spending_style | message | quote_doc_id | quote_doc_url | status
 
 ### 2. Create Google Doc template
 - Name: `Quote Template` (must match this exact name)
@@ -32,7 +32,7 @@ Separate advisory pipeline from Facebook leads. Auto-generate a branded advisory
   Your profile
   Intent: {{intent}}
   Budget range: {{budget_range}}
-  Timeline: {{timeline}}
+  Preferred location: {{preferred_location}}
   How ready are you: {{spending_style}}
   Notes: {{message}}
 

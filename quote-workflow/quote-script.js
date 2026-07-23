@@ -35,7 +35,7 @@ function doPost(e) {
     const sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
     const headers = [
       'timestamp','name','email','phone','country',
-      'intent','budget_range','timeline','spending_style','message',
+      'intent','budget_range','preferred_location','spending_style','message',
       'quote_doc_id','quote_doc_url','status'
     ];
 
@@ -51,7 +51,7 @@ function doPost(e) {
       data.country || '',
       data.intent || '',
       data.budget_range || '',
-      data.timeline || '',
+      data.preferred_location || '',
       data.spending_style || '',
       data.message || '',
       '', // quote_doc_id
@@ -88,11 +88,12 @@ function generateQuote(data) {
     'other': 'Other — tell us in notes'
   };
 
-  const timelineLabels = {
-    'now': 'Now',
-    '3-months': 'Within 3 months',
-    '6-months': 'Within 6 months',
-    'exploring': 'Exploring'
+  const locationLabels = {
+    'Bang Tao': 'Bang Tao',
+    'Nai Yang': 'Nai Yang',
+    'Layan': 'Layan',
+    'Chalong': 'Chalong',
+    '': 'Any / No preference'
   };
 
   const spendingStyleLabels = {
@@ -117,7 +118,7 @@ function generateQuote(data) {
     '{{country}}': data.country || '',
     '{{intent}}': intentLabels[data.intent] || data.intent || '',
     '{{budget_range}}': budgetLabels[data.budget_range] || data.budget_range || '',
-    '{{timeline}}': timelineLabels[data.timeline] || data.timeline || '',
+    '{{preferred_location}}': locationLabels[data.preferred_location] || data.preferred_location || '',
     '{{spending_style}}': spendingStyleLabels[data.spending_style] || data.spending_style || '',
     '{{message}}': data.message || '',
     '{{company}}': 'Agentic',
@@ -167,8 +168,8 @@ function sendQuoteEmail(data, quoteResult) {
         <p style="margin:0 0 16px; font-weight:700;">${intentLabels[data.intent] || data.intent || '—'}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Budget range</p>
         <p style="margin:0 0 16px;">${budgetLabels[data.budget_range] || data.budget_range || '—'}</p>
-        <p style="margin:0 0 8px; color:#b0b8c4;">Timeline</p>
-        <p style="margin:0 0 16px;">${timelineLabels[data.timeline] || data.timeline || '—'}</p>
+        <p style="margin:0 0 8px; color:#b0b8c4;">Preferred location</p>
+        <p style="margin:0 0 16px;">${locationLabels[data.preferred_location] || data.preferred_location || '—'}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">How ready are you</p>
         <p style="margin:0;">${spendingStyleLabels[data.spending_style] || data.spending_style || '—'}</p>
       </div>
@@ -244,7 +245,7 @@ function createQuoteTemplate() {
   body.appendParagraph('Your profile').setHeading(DocumentApp.ParagraphHeading.HEADING2);
   body.appendParagraph('Intent: {{intent}}');
   body.appendParagraph('Budget range: {{budget_range}}');
-  body.appendParagraph('Timeline: {{timeline}}');
+  body.appendParagraph('Preferred location: {{preferred_location}}');
   body.appendParagraph('How ready are you: {{spending_style}}');
   body.appendParagraph('Notes: {{message}}');
   body.appendParagraph('');
@@ -263,11 +264,12 @@ const intentLabels = {
   'other': 'Other'
 };
 
-const timelineLabels = {
-  'now': 'Now',
-  '3-months': 'Within 3 months',
-  '6-months': 'Within 6 months',
-  'exploring': 'Exploring'
+const locationLabels = {
+  'Bang Tao': 'Bang Tao',
+  'Nai Yang': 'Nai Yang',
+  'Layan': 'Layan',
+  'Chalong': 'Chalong',
+  '': 'Any / No preference'
 };
 
 const spendingStyleLabels = {
