@@ -255,7 +255,7 @@ async function generateQuotePdf(ref, data) {
   const intent = data.intent || 'exploring';
   const style = data.spending_style || 'researching';
   const budget = data.budget_range || '';
-  const projects = matchedProjects(budget, preferred_location);
+  const projects = matchedProjects(budget, data.preferred_location);
 
   // Your options
   if ((intent === 'buy-to-live' || intent === 'buy-to-invest' || intent === 'partner-investor') && projects.length) {
