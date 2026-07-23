@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="canonical" href="https://agenticphuket.com/projects/">
+  <link rel="icon" href="../assets/favicon.ico">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f1419">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <title>โครงการ — Agentic</title>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="โครงการ — Agentic">
+  <meta property="og:description" content="ผลงานของ Agentic ในภูเก็ต: วิลล่าและคอนโดจากโครงการของเราเองและพันธมิตรที่ผ่านการคัดเลือกอย่างเข้มงวด.">
+  <meta property="og:image" content="https://v3b.fal.media/files/b/0a9edf53/og-agentic-brand.png">
+  <style>
+    :root { --bg: #0f1419; --bg-alt: #1a2130; --text: #e6e7ea; --muted: #b0b8c4; --border: rgba(255,255,255,0.12); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 10px; font-weight: 600; transition: transform .15s ease, box-shadow .15s ease; cursor: pointer; border: none; font-size: 15px; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,0.3); }
+    .btn-primary { background: #ffffff; color: #000; }
+    .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+    .label { display: inline-block; font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; opacity: 0.8; margin-bottom: 12px; color: var(--muted); }
+    .headline { font-size: clamp(30px, 5.2vw, 54px); font-weight: 700; line-height: 1.08; letter-spacing: -0.6px; }
+    .subhead { font-size: clamp(16px, 2.2vw, 20px); color: var(--muted); margin-top: 16px; max-width: 720px; }
+    .section { padding: 88px 0; }
+    .section--alt { background: var(--bg-alt); }
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: rgba(15,20,25,0.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+    .nav .container { display: flex; align-items: center; justify-content: space-between; min-height: 64px; flex-wrap: wrap; }
+    .nav__logo { font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
+    .nav__links { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 14px; color: var(--muted); }
+    .nav__links a { transition: color .15s; }
+    .nav__links a:hover { color: #fff; }
+    .nav-logo { height: 36px; width: auto; display: block; }
+    .hero { position: relative; min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; padding-top: 64px; }
+    .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,16,23,0.5) 0%, rgba(12,16,23,0.7) 100%); pointer-events: none; }
+    .hero__content { position: relative; z-index: 1; max-width: 920px; padding: 40px 24px; }
+    .hero__media { position: absolute; inset: 0; z-index: 0; }
+    .hero__media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5); }
+    .hero__actions { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .projects { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 40px; }
+    @media (min-width: 760px) { .projects { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1040px) { .projects { grid-template-columns: repeat(3, 1fr); } }
+    .project { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: transform .2s ease, border-color .2s ease; }
+    .project:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+    .project__media img { width: 100%; aspect-ratio: 16/10; object-fit: cover; background: #1a2330; }
+    .project__body { padding: 22px; }
+    .project__title { font-size: 20px; font-weight: 700; }
+    .project__meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
+    .project__actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .project__price { font-size: 22px; font-weight: 700; margin-top: 10px; color: #fff; }
+    .footer { text-align: center; padding: 70px 24px 120px; color: var(--muted); font-size: 13px; }
+    .footer a { text-decoration: underline; }
+    body { padding-bottom: 84px; }
+    @media (min-width: 720px) { body { padding-bottom: 0; } }
+  </style>
+  <script>
+    (function(){
+      const params = new URLSearchParams(window.location.search);
+      const utm = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+      utm.forEach(k => { if (params.has(k)) localStorage.setItem(k, params.get(k)); });
+    })();
+  </script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container">
+    <img loading="lazy" class="nav-logo" src="../assets/images/agentic-logo.png" alt="Agentic">
+    <div class="nav__links">
+      <a href="../">หน้าแรก</a>
+      <a href="/projects">โครงการ</a>
+      <a href="/get-an-offer/">ขอคำปรึกษา</a>
+      <a href="/investors">นักลงทุน</a>
+      <a href="../phuket-insights/">ข้อมูลภูเก็ต</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero__media" style="position: absolute; inset: 0; z-index: 0;">
+    <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Phuket_Aerial.jpg/960px-Phuket_Aerial.jpg?v=alt1" alt="Phuket coastline hero" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5);">
+  </div>
+  <div class="hero__content" style="position: relative; z-index: 1; max-width: 920px; padding: 40px 24px;">
+    <div class="label">ผลงาน</div>
+    <h1 class="headline">เราไม่ใช่แค่ขายอสังหา<br>เราก็สร้างมันด้วย</h1>
+    <p class="subhead">เราพัฒนาโครงการเองและร่วมกับผู้พัฒนาชั้นนำในภูเก็ตเท่านั้น — ทุกโครงการผ่านการตรวจสอบอย่างเข้มงวด</p>
+    <p style="margin-top: 14px; opacity: 0.9; font-size: 14px;">โครงการที่มีป้าย <span style="color:#7eeacc; font-weight: 700;">Own Development</span> ถูกออกแบบ ดูแลก่อสร้าง และส่งมอบโดย Agentic โดยตรง — ไม่ใช่ listing จากบุคคลที่สาม</p>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="section" id="projects">
+  <div class="container">
+    <div class="projects">
+
+      <div class="project">
+        <div class="project__media">
+          <img loading="lazy" loading="lazy" src="../mutti-family-villas/assets/portfolio.jpg" alt="Mutti Family Villas">
+        </div>
+        <div class="project__body">
+          <div class="label" style="margin-bottom:6px;">37 units · Under construction · THB 19.9M – 49.8M</div>
+          <span class="label" style="margin-bottom:6px; background:#0f3d3d; color:#7eeacc;">โครงการของเราเอง</span>
+          <h3 class="project__title">Mutti Family Villas</h3>
+          <p class="project__meta">วิลล่ามีสระส่วนตัว · ชาวแหลม · ได้รับอนุมัติ EIA</p>
+          <div class="project__actions">
+            <a class="btn btn-primary" href="../mutti-family-villas/" style="padding:10px 18px;font-size:14px;">ดูรายละเอียด</a>
+            <a class="btn btn-ghost" href="../mutti-family-villas/#gallery" style="padding:10px 18px;font-size:14px;">แกลเลอรี</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="project__media">
+          <img loading="lazy" loading="lazy" src="../the-zero/silhouette/assets/hero.webp" alt="Silhouette by the Zero">
+        </div>
+        <div class="project__body">
+          <div class="label" style="margin-bottom:6px;">150 units · 2026 Q4 · THB 4.3M – 18.5M</div>
+          <span class="label" style="margin-bottom:6px; background:#0f3d3d; color:#7eeacc;">โครงการของเราเอง</span>
+          <h3 class="project__title">"Silhouette" by The Zero</h3>
+          <p class="project__meta">คอนโด · ไนยาง · ได้รับอนุมัติ EIA</p>
+          <div class="project__actions">
+            <a class="btn btn-primary" href="../the-zero/silhouette/" style="padding:10px 18px;font-size:14px;">ดูรายละเอียด</a>
+            <a class="btn btn-ghost" href="../the-zero/silhouette/#gallery" style="padding:10px 18px;font-size:14px;">แกลเลอรี</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="project__media">
+          <img loading="lazy" loading="lazy" src="../the-zero/bang-tao/assets/hero.jpg" alt="The Zero Bang Tao">
+        </div>
+        <div class="project__body">
+          <div class="label" style="margin-bottom:6px;">85 units · 2027 · THB 4.9M+</div>
+          <span class="label" style="margin-bottom:6px; background:#0f3d3d; color:#7eeacc;">โครงการของเราเอง</span>
+          <h3 class="project__title">The Zero Bang Tao</h3>
+          <p class="project__meta">คอนโด · บางเท่า · ได้รับอนุมัติ EIA</p>
+          <div class="project__actions">
+            <a class="btn btn-primary" href="../the-zero/bang-tao/" style="padding:10px 18px;font-size:14px;">ดูรายละเอียด</a>
+            <a class="btn btn-ghost" href="../the-zero/bang-tao/#gallery" style="padding:10px 18px;font-size:14px;">แกลเลอรี</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project">
+        <div class="project__media">
+          <img loading="lazy" loading="lazy" src="../layan-lucky-villas/assets/portfolio.jpg" alt="Layan Lucky Villas">
+        </div>
+        <div class="project__body">
+          <div class="label" style="margin-bottom:6px;">18 units · Phase II · Under construction · THB 47.6M – 67.8M</div>
+          <span class="label" style="margin-bottom:6px; background:#0f3d3d; color:#7eeacc;">โครงการของเราเอง</span>
+          <h3 class="project__title">Layan Lucky Villas</h3>
+          <p class="project__meta">วิลล่าอัจฉริยะ · ลายาน · ผ่อนตาม phase</p>
+          <div class="project__actions">
+            <a class="btn btn-primary" href="../layan-lucky-villas/" style="padding:10px 18px;font-size:14px;">ดูรายละเอียด</a>
+            <a class="btn btn-ghost" href="../layan-lucky-villas/#gallery" style="padding:10px 18px;font-size:14px;">แกลเลอรี</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MAP -->
+<section class="section section--alt" id="map">
+  <div class="container">
+    <div class="label">ตำแหน่งโครงการ</div>
+    <h2 class="headline">โครงการของเราตั้งอยู่ที่ไหน</h2>
+    <p class="subhead">มี 4 โครงการหลักในปัจจุบัน แตะจุดบนแผนที่เพื่อดูรายละเอียด</p>
+    <div id="phuket-map" style="border-radius:14px; overflow:hidden; margin-top:32px; height: 460px; background: #1a2330;"></div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p style="font-weight:600;color:#fff;">Agentic · Big Man Asset</p>
+    <p style="margin-top:6px;">ผู้พัฒนาอสังหาริมทรัพย์และผู้รับเหมาครบวงจร · ภูเก็ต, ประเทศไทย</p>
+    <p style="margin-top:8px;"><a href="mailto:info@agenticphuket.com">info@agenticphuket.com</a> · <a href="tel:+669****6410">+66 98 860 6410</a></p>
+    <p style="margin-top:8px;"><a href="../assets/Company-Profile.pdf" target="_blank" rel="noopener">รายละเอียดบริษัท (PDF)</a></p>
+    <p style="margin-top:12px;font-size:12px;">© <span id="year"></span> Agentic. สงวนลิขสิทธิ์.</p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  document.addEventListener('DOMContentLoaded', function() {
+    var map = L.map('phuket-map').setView([7.9519, 98.3381], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 18
+    }).addTo(map);
+    var projects = [
+      { name: 'Mutti Family Villas', url: '../mutti-family-villas/', lat: 7.84614, lng: 98.32847, desc: '37 villas · Chalong · From THB 19.9M' },
+      { name: 'Layan Lucky Villas', url: '../layan-lucky-villas/', lat: 7.9963926, lng: 98.3027141, desc: '18 villas · Layan · Phase II · From THB 47.6M' },
+      { name: 'The Zero Bang Tao', url: '../the-zero/bang-tao/', lat: 8.0047676, lng: 98.3082984, desc: '85 condos · Bang Tao · 2027 Delivery · From THB 4.9M' },
+      { name: '"Silhouette" by The Zero', url: '../the-zero/silhouette/', lat: 8.0774057, lng: 98.2944455, desc: '150 units · Nai Yang · 2026 Q4 · From THB 4.3M' }
+    ];
+    projects.forEach(function(p) {
+      L.marker([p.lat, p.lng])
+        .addTo(map)
+        .bindPopup('<strong>' + p.name + '</strong><br>' + p.desc + '<br><a href="' + p.url + '">View project →</a>');
+    });
+  });
+</script>
+    <script src="/assets/lang-switcher.js"></script>
+</body>
+</html>
