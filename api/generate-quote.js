@@ -23,10 +23,8 @@ function budgetLabel(v) {
     'under-5m':'Under THB 5M','5m-20m':'THB 5M – 20M','20m-100m':'THB 20M – 100M','100m-plus':'THB 100M+'
   }[v] || v || '—';
 }
-function timelineLabel(v) {
-  return {
-    'now':'Now','3-months':'Within 3 months','6-months':'Within 6 months','exploring':'Exploring'
-  }[v] || v || '—';
+function locationLabel(v) {
+  return v || 'Any';
 }
 function intentLabel(v) {
   return {
@@ -55,11 +53,14 @@ function budgetMax(v) {
   return { 'under-5m':5000000, '5m-20m':20000000, '20m-100m':100000000, '100m-plus': Infinity }[v] || Infinity;
 }
 
-function matchedProjects(budget) {
+function matchedProjects(budget, preferred_location) {
   const lower = budgetMin(budget);
   const upper = budgetMax(budget);
   const projects = inventory.projects || [];
   let matches = projects.filter(p => p.priceFrom <= upper && p.priceTo >= lower);
+  if (preferred_location) {
+    matches = matches.filter(p => p.location === preferred_location);
+  }
   matches.sort((a, b) => a.priceFrom - b.priceFrom);
   return matches.slice(0, 2);
 }
@@ -69,7 +70,7 @@ function investorScenario(budget) {
 }
 
 function emailTemplate(ref, data) {
-  const projects = matchedProjects(data.budget_range);
+  const projects = matchedProjects(data.budget_range, data.preferred_location);
   const scenarioText = (data.intent === 'buy-to-invest' || data.intent === 'partner-investor')
     ? investorScenario(data.budget_range)
     : null;
@@ -93,8 +94,8 @@ function emailTemplate(ref, data) {
         <p style="margin:0 0 18px; font-weight:700; font-size:18px; color:#e6e7ea;">${pathwayLabel(data.intent)}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Budget range</p>
         <p style="margin:0 0 16px;">${budgetLabel(data.budget_range) || '—'}</p>
-        <p style="margin:0 0 8px; color:#b0b8c4;">Timeline</p>
-        <p style="margin:0 0 16px;">${timelineLabel(data.timeline) || '—'}</p>
+        <p style="margin:0 0 8px; color:#b0b8c4;">Preferred location</p>
+        <p style="margin:0 0 16px;">${locationLabel(data.preferred_location)}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Primary intent</p>
         <p style="margin:0 0 16px;">${intentLabel(data.intent) || '—'}</p>
         <p style="margin:0 0 8px; color:#b0b8c4;">Readiness</p>
@@ -231,7 +232,7 @@ async function generateQuotePdf(ref, data) {
     return py - labelSize * 1.3;
   };
   rightY = drawRow('Budget range:', budgetLabel(data.budget_range), rightY);
-  rightY = drawRow('Timeline:', timelineLabel(data.timeline), rightY);
+  rightY = drawRow('Preferred location:', locationLabel(data.preferred_location), rightY);
   rightY = drawRow('Primary intent:', intentLabel(data.intent), rightY);
   rightY = drawRow('Readiness:', spendingStyleLabel(data.spending_style), rightY);
   y = Math.max(leftY, rightY) - 6;
@@ -254,7 +255,7 @@ async function generateQuotePdf(ref, data) {
   const intent = data.intent || 'exploring';
   const style = data.spending_style || 'researching';
   const budget = data.budget_range || '';
-  const projects = matchedProjects(budget);
+  const projects = matchedProjects(budget, preferred_location);
 
   // Your options
   if ((intent === 'buy-to-live' || intent === 'buy-to-invest' || intent === 'partner-investor') && projects.length) {
@@ -438,7 +439,7 @@ export default async (event) => {
     }
     const {
       name, email, phone, country,
-      budget_range, timeline, message,
+      budget_range, preferred_location, message,
       intent, spending_style
     } = parsed;
 
@@ -454,7 +455,8 @@ export default async (event) => {
       phone: phone || '',
       country: country || '',
       budget_range: budget_range || '',
-      timeline, message,
+      preferred_location: preferred_location || '',
+      message,
       intent, spending_style
     });
 
@@ -471,7 +473,7 @@ export default async (event) => {
           subject: `Your Agentic Advisory Overview (${ref})`,
           html: emailTemplate(ref, {
             name: name || 'Valued Client',
-            budget_range, timeline,
+            budget_range, preferred_location,
             intent, spending_style
           }),
           attachments: [
