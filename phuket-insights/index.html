@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="canonical" href="https://agenticphuket.com/phuket-insights/">
+  <link rel="icon" href="../assets/favicon.ico">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#0f1419">
+  <title>Phuket Insights — Agentic</title>
+  <meta name="description" content="Phuket real estate market data, development pipeline, international schools, and interactive zoning map.">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root { --bg: #0f1419; --bg-alt: #1a2130; --text: #e6e7ea; --muted: #b0b8c4; --border: rgba(255,255,255,0.12); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 10px; font-weight: 600; transition: transform .15s ease, box-shadow .15s ease; cursor: pointer; border: none; font-size: 15px; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,0.3); }
+    .btn-primary { background: #ffffff; color: #000; }
+    .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.25); color: #fff; }
+    .label { display: inline-block; font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; opacity: 0.8; margin-bottom: 12px; color: var(--muted); }
+    .headline { font-size: clamp(30px, 5.2vw, 54px); font-weight: 700; line-height: 1.08; letter-spacing: -0.6px; }
+    .subhead { font-size: clamp(16px, 2.2vw, 20px); color: var(--muted); margin-top: 16px; max-width: 720px; }
+    .section { padding: 88px 0; }
+    .section--alt { background: var(--bg-alt); }
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: rgba(15,20,25,0.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+    .nav .container { display: flex; align-items: center; justify-content: space-between; min-height: 64px; flex-wrap: wrap; }
+    .nav__logo { font-family: "Inter","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
+    .nav__links { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 14px; color: var(--muted); }
+    .nav__links a { transition: color .15s; }
+    .nav__links a:hover { color: #fff; }
+    .nav-logo { height: 36px; width: auto; display: block; }
+    .hero { position: relative; min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; padding-top: 64px; }
+    .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,16,23,0.5) 0%, rgba(12,16,23,0.7) 100%); pointer-events: none; }
+    .hero__content { position: relative; z-index: 1; max-width: 920px; padding: 40px 24px; }
+    .hero__media { position: absolute; inset: 0; z-index: 0; }
+    .hero__media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.5); }
+    .hero__actions { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .project-marker { position: relative; }
+    .project-marker-inner { width: 16px; height: 16px; background: #ffffff; border: 2px solid #000000; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255,255,255,0.9), 0 2px 8px rgba(0,0,0,0.4); cursor: pointer; transition: transform .15s; }
+    .project-marker-inner:hover { transform: scale(1.25); }
+    .project-popup { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-width: 180px; }
+    .project-popup a { color: #0f1419; font-weight: 700; }
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 36px; }
+    @media (min-width: 720px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+    .stat { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 22px; text-align: center; }
+    .stat__number { font-size: 32px; font-weight: 700; color: #fff; }
+    .stat__label { font-size: 13px; color: var(--muted); margin-top: 8px; }
+    .stat__change { font-size: 12px; color: #7eeacc; margin-top: 6px; }
+    .pipelines { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 32px; }
+    @media (min-width: 720px) { .pipelines { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1040px) { .pipelines { grid-template-columns: repeat(3, 1fr); } }
+    .pipeline { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+    .pipeline__zone { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 8px; }
+    .pipeline__name { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .pipeline__meta { font-size: 14px; color: var(--muted); }
+    .pipeline__dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+    .table-wrap { overflow-x: auto; margin-top: 28px; border: 1px solid var(--border); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(255,255,255,0.03); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    td { color: #c9cdd5; }
+    tr:last-child td { border-bottom: none; }
+    #phuket-map { height: 520px; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; margin-top: 28px; background: #131a22; }
+    .map-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; align-items: center; }
+    .map-legend__item { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+    .map-legend__dot { width: 12px; height: 12px; border-radius: 50%; opacity: 0.9; }
+    .sources { font-size: 12px; color: var(--muted); margin-top: 14px; text-align: center; }
+    .footer { text-align: center; padding: 70px 24px 120px; color: var(--muted); font-size: 13px; }
+    .footer a { text-decoration: underline; color: #e6e7ea; }
+  </style>
+  <script>
+    (function(){
+      const params = new URLSearchParams(window.location.search);
+      const utm = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+      utm.forEach(k => { if (params.has(k)) localStorage.setItem(k, params.get(k)); });
+    })();
+  </script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container">
+    <img loading="lazy" class="nav-logo" src="../assets/images/agentic-logo.png" alt="Agentic">
+    <div class="nav__links">
+      <a href="../">Home</a>
+      <a href="/projects">Projects</a>
+      <a href="/get-an-offer/">Get advice</a>
+      <a href="/investors">Investors</a>
+      <a href="/phuket-insights/">Phuket Insights</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero__media">
+    <img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Phuket_Aerial.jpg/960px-Phuket_Aerial.jpg?v=alt2" alt="Phuket coastline" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.5);">
+  </div>
+  <div class="hero__content">
+    <div class="label">Phuket Insights</div>
+    <h1 class="headline">Where Phuket is heading.</h1>
+    <p class="subhead">Market numbers, school districts, and the development pipeline — in one place.</p>
+    <div class="hero__actions">
+      <a class="btn btn-primary" href="#market">Market Overview</a>
+      <a class="btn btn-ghost" href="#map">Explore the Map</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--alt" id="market">
+  <div class="container">
+    <div class="label">Market Overview</div>
+    <h2 class="headline" style="margin-top:0;">Phuket in numbers.</h2>
+    <p class="subhead" style="margin: 0 auto 28px;">Key figures from public reports on supply, sales, pricing, and buyer profiles.</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat__number">70.8%</div>
+        <div class="stat__label">Of total supply sold (May 2026)</div>
+        <div class="stat__change">Muang district highest at 83%</div>
+      </div>
+      <div class="stat">
+        <div class="stat__number">60%</div>
+        <div class="stat__label">Foreign share of residential sales</div>
+        <div class="stat__change">Cash-based, leverage-light</div>
+      </div>
+      <div class="stat">
+        <div class="stat__number">+647%</div>
+        <div class="stat__label">Land price growth 2004–2024</div>
+        <div class="stat__change">~10.58% CAGR</div>
+      </div>
+      <div class="stat">
+        <div class="stat__number">8–10%</div>
+        <div class="stat__label">Projected price growth in 2026</div>
+        <div class="stat__change">Premium zones leading</div>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:14px;margin-top:22px;max-width:760px;margin-left:auto;margin-right:auto;text-align:center;line-height:1.6;">What this means: supply is tightening and foreign demand is cash-heavy. Buyers who move early in the cycle usually lock better payment terms and unit mix before the rush hits.</p>
+    <p class="sources">Sources: REIC, Colliers Thailand, C9 Hotelworks, AREA Residential Survey 2025, Charlesdel 2025</p>
+  </div>
+</section>
+
+<section class="section" id="pipeline">
+  <div class="container">
+    <div class="label">Development Pipeline</div>
+    <h2 class="headline" style="margin-top:0;">Where new supply is coming.</h2>
+    <p class="subhead" style="margin: 0 auto 28px;">Public data on approved and planned projects by zone.</p>
+    <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 28px;">
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: baseline; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div><span class="pipeline__dot" style="background:#3b82f6; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px;"></span><span style="color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Condo-heavy</span></div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Bang Tao</div><div style="color:var(--muted); font-size:14px;">9 hotels / 1,640 rooms + branded residences + >2,400 upscale homes. >10,000 residential units.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: baseline; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div><span class="pipeline__dot" style="background:#3b82f6; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px;"></span><span style="color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Condo-heavy</span></div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Cherng Talay</div><div style="color:var(--muted); font-size:14px;">High-density condo and hotel pipeline near Laguna and Boat Avenue.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: baseline; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div><span class="pipeline__dot" style="background:#f97316; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px;"></span><span style="color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Mixed</span></div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Surin</div><div style="color:var(--muted); font-size:14px;">Branded residences and boutique condos expanding beachfront and hillside.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: baseline; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div><span class="pipeline__dot" style="background:#3b82f6; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px;"></span><span style="color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Condo-heavy</span></div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Kamala</div><div style="color:var(--muted); font-size:14px;">Mid-rise condos and limited new villa plots; land constrained.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: baseline; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div><span class="pipeline__dot" style="background:#14b8a6; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px;"></span><span style="color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Villa-heavy</span></div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Layan</div><div style="color:var(--muted); font-size:14px;">Layan Verde masterplan + AYANA Heights + ongoing villa communities.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: baseline; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div><span class="pipeline__dot" style="background:#14b8a6; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px;"></span><span style="color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Villa-heavy</span></div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Chalong</div><div style="color:var(--muted); font-size:14px;">Established gated villa zone. New supply limited by environmental approvals.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: baseline; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div><span class="pipeline__dot" style="background:#f97316; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px;"></span><span style="color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Mixed</span></div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Rawai</div><div style="color:var(--muted); font-size:14px;">Boutique low-rise condos and renovated resale villas dominate.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: baseline; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div><span class="pipeline__dot" style="background:#14b8a6; display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px;"></span><span style="color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Villa-heavy</span></div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Nai Yang</div><div style="color:var(--muted); font-size:14px;">Silhouette launched 2026 with 150 units. Limited sites remaining on north coast.</div></div>
+      </div>
+    </div>
+    <p class="sources">Sources: C9 Hotelworks, Bangkok Post, AREA, developer announcements, local planning updates</p>
+  </div>
+</section>
+
+<section class="section" id="city-plan">
+  <div class="container">
+    <div class="label">City Plan & Infrastructure</div>
+    <h2 class="headline" style="margin-top:0;">What’s being built — infrastructure that changes the map.</h2>
+    <p class="subhead" style="margin: 0 auto 28px;">New roads, retail, and attractions that will reshape Phuket through 2030.</p>
+    <div class="pipelines">
+      <div class="pipeline">
+        <div class="pipeline__zone">Transport — road</div>
+        <div class="pipeline__name">Phuket Elevated Expressway (Kathu–Patong)</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#f97316;"></span>3.98 km, 4-lane expressway + tunnel through Nak Kerd Hill. Cabinet approved Aug 2025. Targeted opening 2030.</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline__zone">Transport — road</div>
+        <div class="pipeline__name">MR-Map Expressway Phase 2</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#f97316;"></span>30.6 km elevated tollway: Muang Mai → Koh Kaew → Kathu. EIA complete; Cabinet submission 2026. Targeted completion 2030.</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline__zone">Transport — rail</div>
+        <div class="pipeline__name">Phuket Light Rail Transit</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#3b82f6;"></span>58.5 km line: airport → Chalong Circle. Bids expected 2026; opening targeted 2031.</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline__zone">Aviation</div>
+        <div class="pipeline__name">Phuket International Airport Expansion</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#a855f7;"></span>New terminal, runway/taxiway upgrades. Capacity 12.5M → 18M passengers by 2029.</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline__zone">Marine & trade</div>
+        <div class="pipeline__name">Deep Sea Port Expansion</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#14b8a6;"></span>New passenger terminal + channel dredging for large cruise vessels. Targeted completion 2027.</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline__zone">Entertainment</div>
+        <div class="pipeline__name">Ao Por Mega Project</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#f97316;"></span>East coast complex: hotels, marina, venues, F1 circuit, casino. Development starts 2026; first phase 2029.</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline__zone">Retail</div>
+        <div class="pipeline__name">Siam Premium Outlets (Phuket)</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#14b8a6;"></span>Brand-name shopping outlet near high-traffic tourist corridor. Opening 2026.</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline__zone">Retail & leisure</div>
+        <div class="pipeline__name">Central Phuket Floresta Expansion</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#14b8a6;"></span>+40% expansion, doubled luxury zone. Investment ~THB 20 bn. Q4 2026.</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline__zone">Tourism</div>
+        <div class="pipeline__name">Surin Beach Skywalk</div>
+        <div class="pipeline__meta"><span class="pipeline__dot" style="background:#3b82f6;"></span>Glass-bottom walkway + 3-story panoramic tower at Laem Ta Ma. ~THB 193 m. Construction started late 2023.</div>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:14px;margin-top:22px;max-width:760px;margin-left:auto;margin-right:auto;text-align:center;line-height:1.6;">What this means for buyers: infrastructure usually arrives before full residential completion. Buying pre-2028 in impacted zones (Chalong, Bang Tao, Thalang corridor) tends to capture uplift, but budget for construction noise and access changes.</p>
+    <p class="sources">Sources: Thailand PRD Oct 2025, What's On in Phuket Oct 2025, Asia Lifestyle Magazine Sep 2025, Central Group, developer announcements</p>
+  </div>
+</section>
+
+<section class="section" id="dates">
+  <div class="container">
+    <div class="label">Key dates to watch</div>
+    <h2 class="headline" style="margin-top:0;">When to move — and when to wait.</h2>
+    <p class="subhead" style="margin: 0 auto 28px;">These hard deadlines usually shift pricing, availability, and financing terms.</p>
+    <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 28px;">
+      <div style="display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: baseline; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; color:#c5a059; font-size:14px;">2026 Q4</div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Central Phuket Floresta expansion opens</div><div style="color:var(--muted); font-size:14px;">Retail uplift typically precedes residential price resets in adjacent zones.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: baseline; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; color:#c5a059; font-size:14px;">2027</div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Deep Sea Port + Siam Premium Outlets</div><div style="color:var(--muted); font-size:14px;">East coast and north Phuket see buyer attention spike before opening.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: baseline; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; color:#c5a059; font-size:14px;">2028–2030</div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Phuket Elevated Expressway targets open</div><div style="color:var(--muted); font-size:14px;">Chalong and Kathu access improves. Pre-2028 purchases in these zones often outperform.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: baseline; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; color:#c5a059; font-size:14px;">2029</div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Phuket International Airport reaches 18M capacity</div><div style="color:var(--muted); font-size:14px;">Tourism-driven rental demand usually rises with new route announcements.</div></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: baseline; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; color:#c5a059; font-size:14px;">2031</div>
+        <div><div style="font-weight:700; font-size:16px; margin-bottom:4px;">Light Rail Transit airport–Chalong opens</div><div style="color:var(--muted); font-size:14px;">Long-term price re-rating along the corridor. Sellers often price in the news before opening.</div></div>
+      </div>
+    </div>
+    <p class="sources">Sources: Thailand PRD Oct 2025, Cabinet announcements, EIA filings, developer roadshows</p>
+  </div>
+</section>
+
+<section class="section section--alt" id="schools">
+  <div class="container">
+    <div class="label">International Schools</div>
+    <h2 class="headline" style="margin-top:0;">The schools that drive demand.</h2>
+    <p class="subhead" style="margin: 0 auto 28px;">Proximity to top international schools is one of the strongest pricing drivers for family real estate. Properties within 2–3 km of BISP, UWC, or HeadStart command premium per-sqm vs comparable units outside these catchments.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>School</th>
+            <th>Location</th>
+            <th>Curriculum</th>
+            <th>Annual fees</th>
+            <th>Notable</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>British International School Phuket (BISP)</td>
+            <td>Koh Kaew</td>
+            <td>British / IGCSE + IB</td>
+            <td>THB 400k–800k</td>
+            <td>Olympic pool, FIFA pitch, 900+ students from 60+ nations</td>
+          </tr>
+          <tr>
+            <td>UWC Thailand</td>
+            <td>Thalang (near Bang Tao)</td>
+            <td>IB Continuum</td>
+            <td>THB 300k–700k</td>
+            <td>Mindfulness, outdoor learning, 60+ nationalities</td>
+          </tr>
+          <tr>
+            <td>HeadStart International School</td>
+            <td>Wichit (central Phuket)</td>
+            <td>British / IGCSE + A-Level</td>
+            <td>THB 300k–500k</td>
+            <td>Robotics, ballet, strong ESL support</td>
+          </tr>
+          <tr>
+            <td>Kajonkiet International School</td>
+            <td>Near Chalong</td>
+            <td>British + Thai bilingual</td>
+            <td>THB 200k–400k</td>
+            <td>Most affordable mainstream international option</td>
+          </tr>
+          <tr>
+            <td>International School of Phuket (ISP)</td>
+            <td>Rawai</td>
+            <td>Cambridge</td>
+            <td>~THB 240k+</td>
+            <td>Nature-inspired campus, mid-range pricing</td>
+          </tr>
+          <tr>
+            <td>BCIS Phuket International School</td>
+            <td>Chalong</td>
+            <td>British / American blend</td>
+            <td>~THB 400k+</td>
+            <td>Growing campus, popular with Chalong-area families</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color:var(--muted); font-size:14px; margin-top:16px; max-width:760px; margin-left:auto; margin-right:auto; text-align:center; line-height:1.6;">Agentic builds and vets in Chalong, Nai Yang, Bang Tao, and Layan. If school access matters to your timeline, we map catchment radius and resale depth before advising on a zone.</p>
+    <p class="sources">Sources: School websites, Reloc8 Phuket 2025, ISchoolAdvisor 2026</p>
+  </div>
+</section>
+
+<section class="section" id="map">
+  <div class="container">
+    <div class="label">Interactive Map</div>
+    <h2 class="headline" style="margin-top:0;">Zone by zone.</h2>
+    <p class="subhead" style="margin: 0 auto 28px;">Circles = development pipeline scale by area. Dotted lines = planned infrastructure corridors.</p>
+    <div id="phuket-map"></div>
+    <div class="map-legend">
+      <div class="map-legend__item"><div class="map-legend__dot" style="background:#14b8a6;"></div>Villa-heavy</div>
+      <div class="map-legend__item"><div class="map-legend__dot" style="background:#3b82f6;"></div>Condo-heavy</div>
+      <div class="map-legend__item"><div class="map-legend__dot" style="background:#a855f7;"></div>Mixed</div>
+      <div class="map-legend__item"><div class="map-legend__dot" style="background:#f97316;"></div>Developing / mixed</div>
+      <div class="map-legend__item"><div class="map-legend__dot" style="background:#f97316;height:3px;width:18px;border-radius:0;"></div>Expressway</div>
+      <div class="map-legend__item"><div class="map-legend__dot" style="background:#3b82f6;height:3px;width:18px;border-radius:0;"></div>LRT</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="checklist">
+  <div class="container">
+    <div class="label">Buyer's checklist</div>
+    <h2 class="headline" style="margin-top:0;">Before you sign anything.</h2>
+    <p class="subhead" style="margin: 0 auto 28px;">Eight checks that separate a good deal from a costly mistake.</p>
+    <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 28px;">
+      <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px;">1. Title deed verified by a Thai lawyer</div>
+        <div style="color:var(--muted); font-size:14px;">Chanote > Sor Kor. Confirm no liens, squatters, or company-share complications.</div>
+      </div>
+      <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px;">2. EIA approval is public record</div>
+        <div style="color:var(--muted); font-size:14px;">If there’s no approved EIA, construction can’t legally start. Ask for the official reference number.</div>
+      </div>
+      <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px;">3. Developer track record, not just renderings</div>
+        <div style="color:var(--muted); font-size:14px;">Visit a finished project. Ask for completion history, defect resolution, and current litigation.</div>
+      </div>
+      <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px;">4. Payment milestone protection</div>
+        <div style="color:var(--muted); font-size:14px;">Never pay more than 30% before concrete foundation. Stage payments to construction progress.</div>
+      </div>
+      <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px;">5. Rental program reality-check</div>
+        <div style="color:var(--muted); font-size:14px;">Get 12 months of actual STR income from the operator, not a projection. Ask about seasonality.</div>
+      </div>
+      <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px;">6. Fee structure transparency</div>
+        <div style="color:var(--muted); font-size:14px;">Management fee, sinking fund, transfer fees, and taxes should be itemised before closing.</div>
+      </div>
+      <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px;">7. Resale liquidity in the sub-zone</div>
+        <div style="color:var(--muted); font-size:14px;">Not all locations have buyer depth. Check 12-month resale activity and average days-on-market.</div>
+      </div>
+      <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+        <div style="font-weight:700; font-size:15px; margin-bottom:6px;">8. Insurance and warranty scope</div>
+        <div style="color:var(--muted); font-size:14px;">Structural warranty, contents coverage, and title insurance are non-negotiable for financed or foreign buyers.</div>
+      </div>
+    </div>
+    <p style="color:var(--muted); font-size:13px; text-align:center; margin-top:16px;">These checks are an overview, not legal advice. Always verify with a licensed Thai attorney.</p>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="container" style="text-align: center;">
+    <div class="label">Next step</div>
+    <h2 class="headline" style="margin-top:0; font-size: clamp(24px,4vw,40px);">See the projects behind the stats.</h2>
+    <p class="subhead" style="margin: 0 auto 24px;">We build and vet in the zones above — with due diligence and in-house construction.</p>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 24px;">
+      <a class="btn btn-primary" href="../projects/">View Projects</a>
+      <a class="btn btn-ghost" href="mailto:info@agenticphuket.com?subject=Phuket%20Insights%20-%20Let's%20talk">Discuss a zone</a>
+      <a class="btn btn-ghost" href="tel:+668****6410">Call +66 98 860 6410</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p style="font-weight:600;color:#fff;">Agentic · Phuket Insights</p>
+    <p style="margin-top:6px;">Data is indicative and sourced from public reports. Verify decisions with licensed advisors.</p>
+    <p style="margin-top:8px;"><a href="../">← Back to home</a> · <a href="mailto:info@agenticphuket.com">info@agenticphuket.com</a></p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('phuket-map').setView([8.01, 98.30], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    const zones = [
+      { name: 'Bang Tao', lat: 8.00477, lng: 98.30830, pipeline: 10000, type: 'Condo', color: '#3b82f6', radius: 35, note: '10,000+ unit pipeline. Hotels + branded residences.' },
+      { name: 'Cherng Talay', lat: 8.015, lng: 98.305, pipeline: 6000, type: 'Condo', color: '#3b82f6', radius: 28, note: 'High-density condo and hotel development.' },
+      { name: 'Kamala', lat: 7.952, lng: 98.275, pipeline: 3500, type: 'Condo', color: '#3b82f6', radius: 20, note: 'Limited land. Luxury condos dominate.' },
+      { name: 'Surin', lat: 7.957, lng: 98.287, pipeline: 4200, type: 'Mixed', color: '#f97316', radius: 22, note: 'Branded residences expanding.' },
+      { name: 'Layan', lat: 8.031, lng: 98.282, pipeline: 5000, type: 'Villa', color: '#14b8a6', radius: 28, note: 'Master-planned villa estates.' },
+      { name: 'Chalong', lat: 7.821, lng: 98.345, pipeline: 4000, type: 'Villa', color: '#14b8a6', radius: 25, note: 'Gated villa communities. EIA-constrained.' },
+      { name: 'Rawai', lat: 7.780, lng: 98.311, pipeline: 2200, type: 'Villa', color: '#14b8a6', radius: 16, note: 'Boutique low-rise and renovated villas.' },
+      { name: 'Nai Yang', lat: 8.083, lng: 98.298, pipeline: 3000, type: 'Villa', color: '#14b8a6', radius: 20, note: 'Limited north-coast sites. Silhouette launched 2026.' }
+    ];
+
+    zones.forEach(z => {
+      const popup = `<strong>${z.name}</strong><br><span style="color:${z.color};">●</span> ${z.type}-heavy<br>${z.note}`;
+      L.circleMarker([z.lat, z.lng], {
+        radius: z.radius / 4,
+        fillColor: z.color,
+        color: 'rgba(255,255,255,0.15)',
+        weight: 1,
+        opacity: 0.9,
+        fillOpacity: 0.55
+      }).addTo(map).bindPopup(popup);
+    });
+
+    const infra = [
+      { name: 'Phuket Airport Expansion', lat: 8.113, lng: 98.316, year: 'By 2029', type: 'Aviation', color: '#a855f7' },
+      { name: 'LRT Airport–Chalong', lat: 8.01, lng: 98.35, year: 'By 2031', type: 'Rail', color: '#3b82f6' },
+      { name: 'MR-Map Expressway (Muang Mai–Kathu)', lat: 8.05, lng: 98.33, year: 'By 2030', type: 'Road', color: '#f97316' },
+      { name: 'Expressway Phase 1 (Kathu–Patong)', lat: 7.92, lng: 98.31, year: 'By 2030', type: 'Road', color: '#f97316' },
+      { name: 'Central Phuket expansion', lat: 7.985, lng: 98.32, year: 'Q4 2026', type: 'Retail', color: '#14b8a6' },
+      { name: 'Deep Sea Port', lat: 7.82, lng: 98.42, year: 'By 2027', type: 'Marine', color: '#14b8a6' },
+      { name: 'Siam Premium Outlets', lat: 8.05, lng: 98.31, year: '2026', type: 'Retail', color: '#14b8a6' }
+    ];
+
+    infra.forEach(i => {
+      const popup = `<strong>${i.name}</strong><br>${i.type} · ${i.year}`;
+      L.marker([i.lat, i.lng])
+        .addTo(map)
+        .bindPopup(popup, { direction: 'auto' });
+    });
+
+    const expresswayRoute = L.polyline([
+      [8.113, 98.316],
+      [8.05, 98.33],
+      [7.985, 98.32],
+      [7.92, 98.31]
+    ], { color: '#f97316', weight: 3, opacity: 0.35, dashArray: '8 10' }).addTo(map);
+
+    const lrtRoute = L.polyline([
+      [8.113, 98.316],
+      [8.08, 98.34],
+      [8.01, 98.35],
+      [7.92, 98.34],
+      [7.85, 98.36]
+    ], { color: '#3b82f6', weight: 3, opacity: 0.35, dashArray: '8 10' }).addTo(map);
+
+    const routeLegend = { 'Road': '#f97316', 'Rail': '#3b82f6' };
+
+    const projects = [
+      { name: 'Mutti Family Villas', lat: 7.84614, lng: 98.32847, url: '../mutti-family-villas/', note: 'Own Development · Chalong' },
+      { name: 'Bang Tao Residences', lat: 8.0047676, lng: 98.3082984, url: '../projects/', note: 'Curated partner project · Bang Tao' },
+      { name: 'Layan Lucky Villas', lat: 7.9963926, lng: 98.3027141, url: '../layan-lucky-villas/', note: 'Own Development · Layan' },
+      { name: 'Nai Yang', lat: 8.0774057, lng: 98.2944455, url: '../projects/', note: 'Own Development · North coast' }
+    ];
+
+    projects.forEach(p => {
+      const popup = `<div class=\"project-popup\"><strong>${p.name}</strong><br><span style=\"color:var(--muted);font-size:13px;\">${p.note}</span><br><a href=\"${p.url}\">View project →</a></div>`;
+      const icon = L.divIcon({ className: 'project-marker', html: '<div class=\"project-marker-inner\"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
+      L.marker([p.lat, p.lng], { icon, zIndexOffset: 1000 }).addTo(map).bindPopup(popup);
+    });
+  });
+</script>
+</body>
+</html>
