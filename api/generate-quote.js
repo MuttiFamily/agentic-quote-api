@@ -411,7 +411,8 @@ function pdfResponse(pdfBase64, filename, ref) {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="${filename}"`,
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
     },
     body: pdfBase64,
     isBase64Encoded: true
