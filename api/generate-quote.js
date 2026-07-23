@@ -373,23 +373,23 @@ async function generateQuotePdf(ref, data) {
   page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: gold });
   y -= 18;
   y = drawText('Next step', marginX, y, bold, black, 12);
-  y = drawText('Reply to this email or WhatsApp +66 98 860 6410. We normally respond within one business day.', marginX, y, font, black, 10, true);
-
-  y -= 14;
-  page.drawRectangle({ x: marginX, y: y, width: width - marginX * 2, height: 1.2, color: rgb(220/255, 220/255, 220/255) });
-  y -= 16;
-  y = drawText('This overview is indicative and intended to start a conversation, not to constitute a binding quote.', marginX, y, font, muted, 9);
-  y = drawText('Pricing, availability, and pathways depend on final unit selection, contract date, and verification.', marginX, y, font, muted, 9);
+  y -= 2;
+  y = drawText('WhatsApp or call to proceed:', marginX, y, font, black, 10, true);
+  y = drawText('+66 98 860 6410', marginX, y, bold, gold, 11);
+  y = drawText('or email', marginX, y, font, muted, 10);
+  y = drawText('info@agenticphuket.com', marginX, y, bold, gold, 10);
 
   // Footer
-  page.drawRectangle({ x: marginX, y: 0, width: width - marginX * 2, height: 52, color: black });
+  const footerY = 6;
+  page.drawRectangle({ x: marginX, y: footerY - 44, width: width - marginX * 2, height: 52, color: rgb(20/255, 24/255, 30/255) });
   if (logoImage) {
-    const smallW = 76;
+    const smallW = 60;
     const smallH = smallW * (76 / 557);
-    page.drawImage(logoImage, { x: marginX, y: (52 - smallH) / 2, width: smallW, height: smallH });
+    page.drawImage(logoImage, { x: marginX, y: footerY + (52 - smallH) / 2 - 10, width: smallW, height: smallH });
   }
+  page.drawText('Agentic', { x: marginX + 72, y: footerY + 20, size: 11, font: bold, color: rgb(230/255, 230/255, 230/255) });
   page.drawText('info@agenticphuket.com · +66 98 860 6410', {
-    x: marginX + 90, y: 18, size: 9, font, color: gold
+    x: marginX + 72, y: footerY + 8, size: 9, font, color: gold
   });
 
   return doc;
